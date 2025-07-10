@@ -1,0 +1,7 @@
+{
+  "name": "sistglob",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}
