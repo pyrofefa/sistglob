@@ -1,0 +1,41 @@
+.detail{
+    background-color: var(--ion-color-SIMMOSCA);
+    color:  var(--ion-color-SIMPP-contrast);
+    padding-left: 15pt;
+    padding-top: 10pt;
+}
+h4{
+    color: var(--ion-color-SIMMOSCA);
+    padding-left: 15pt;
+}
+h3{
+    font-size: 15pt;
+    padding-left: 15pt;
+}
+hr{
+    background-color: var(--ion-color-SIMMOSCA);
+    height: 4pt;
+}
+ion-card-content {
+    color: #ffffff;
+    background-color: #c0c0c0;
+}
+.esperando{
+    color: var(--ion-color-warning);
+    font-size: 10pt;
+}
+.error{
+    color: var(--ion-color-danger);
+    font-size: 10pt;
+}
+.enviado{
+    color: var(--ion-color-success);
+    font-size: 10pt;
+}
+.pendiente{
+    color: var(--ion-color-warning);
+    font-size: 10pt;
+}
+.input-bold {
+  --label-font-weight: 600;
+}

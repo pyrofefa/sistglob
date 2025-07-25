@@ -1,0 +1,210 @@
+<ion-grid *ngFor="let c of campo" class="detail">
+  <ion-row class="align-row">
+    <!-- Viñedo -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="leaf-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Campo:</strong> {{ c.campo }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Trampa -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="bug-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Trampa:</strong> {{ c.name }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Posición -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="location-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <div *ngIf="latitud != null && longitud != null">
+            <div *ngIf="c | calculateDistance : latitud : longitud : c.latitud : c.longitud as result">
+              <strong>Posición:</strong>
+              ({{ c.latitud | number:"1.0-5":"en-US" }},
+              {{ c.longitud | number:"1.0-5":"en-US" }}) - {{ result.distancia }} M - {{ result.orientacion }}
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Fecha -->
+    <ion-col size="12" class="field-item">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="calendar-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Fecha:</strong>
+          {{ fechaHora | date: 'dd/MMM/yyyy hh:mm:ss a' }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+<ion-card class="welcome-card ion-text-center">
+  <ion-card-content>
+    <ion-row>
+      <ion-col size="4">
+        Longitud <br>
+        {{ longitud | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="3">
+        Latitud <br>
+        {{ latitud | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="3">
+        Precisión <br>
+        {{ presicion | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="1">
+        <ion-button color="{{ name }}" shape="round" size="small" (click)="actualizar()">
+          <ion-icon name="sync"></ion-icon>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <p class="ion-text-center esperando" [hidden]='latitud != null && longitud != null && presicion != null'>---
+      Esperando posición ---</p>
+  </ion-card-content>
+</ion-card>
+<h4><strong>Trampa</strong></h4>
+<hr>
+<form #formulario="ngForm" (ngSubmit)="save()">
+  <ion-item>
+    <ion-input label="Capturas" name='captura' [disabled]="captura.revisada == false" type="number" min="0" pattern="^[0-9]{1,3}$"
+      [(ngModel)]="captura.captura" [required]='captura.revisada != false'></ion-input>
+  </ion-item>
+  <ion-item>
+    <ion-label>Fenología</ion-label>
+    <ion-select slot="end" name='fenologia' [(ngModel)]='captura.fenologia' [compareWith]="compareWith" placeholder="Seleccione"
+      interface="action-sheet" required>
+      <ion-select-option *ngFor="let fenologia of fenologias" [value]='fenologia.id'>{{ fenologia.name
+        }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+  <ion-item>
+    <ion-label>Instalada</ion-label>
+    <ion-toggle slot="end" color="{{ name }}" name='instalada' [(ngModel)]='captura.instalada'></ion-toggle>
+  </ion-item>
+  <ion-item>
+    <ion-label>Revisada</ion-label>
+    <ion-toggle slot="end" color="{{ name }}" name='revisada' [(ngModel)]='captura.revisada' (ngModelChange)='cambio()'></ion-toggle>
+  </ion-item>
+  <ion-item>
+    <ion-label>Motivo</ion-label>
+    <ion-select slot="end" name="motivo" [disabled]="captura.revisada == null || captura.revisada == true"
+      [compareWith]="compareWithM" placeholder="Seleccione" interface="action-sheet" [(ngModel)]="captura.observacion">
+      <ion-select-option *ngFor="let observacion of observaciones" [value]='observacion.id'>{{ observacion.name
+        }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+  <hr>
+  <h4>Árbol</h4>
+  <ion-row class="ion-text-center">
+    <ion-col></ion-col>
+    <ion-col class="ion-text-center">
+      <ion-label>Adultos</ion-label>
+    </ion-col>
+    <ion-col class="ion-text-center">
+      <ion-label>Ninfas</ion-label>
+    </ion-col>
+    <ion-col class="ion-text-center">
+      <ion-label>Fenología</ion-label>
+    </ion-col>
+  </ion-row>
+  <ion-row class="ion-text-center">
+    <ion-col>
+      <br>
+      <ion-label>Norte:</ion-label>
+    </ion-col>
+    <ion-col>
+      <ion-toggle color="{{ name }}" name='noa' [(ngModel)]='captura.noa'></ion-toggle>
+    </ion-col>
+    <ion-col>
+      <ion-toggle color="{{ name }}" name='non' [(ngModel)]='captura.non'></ion-toggle>
+    </ion-col>
+    <ion-col>
+      <ion-select name='nof' class="rounded" [(ngModel)]='captura.nof' [compareWith]="compareWithN"
+        placeholder="Seleccione" interface="action-sheet" required>
+        <ion-select-option *ngFor="let brote of brotes" [value]='brote.id'>{{ brote.name  }}</ion-select-option>
+      </ion-select>
+    </ion-col>
+  </ion-row>
+  <ion-row class="ion-text-center">
+    <ion-col>
+      <br>
+      <ion-label>Este:</ion-label>
+    </ion-col>
+    <ion-col>
+      <ion-toggle color="{{ name }}" name='esa' [(ngModel)]='captura.esa'></ion-toggle>
+    </ion-col>
+    <ion-col>
+      <ion-toggle color="{{ name }}" name='esn' [(ngModel)]='captura.esn'></ion-toggle>
+    </ion-col>
+    <ion-col>
+      <ion-select name='esf' class="rounded" [(ngModel)]='captura.esf' [compareWith]="compareWithE"
+        placeholder="Seleccione" interface="action-sheet" required>
+        <ion-select-option *ngFor="let brote of brotes" [value]='brote.id'>{{ brote.name }}</ion-select-option>
+      </ion-select>
+    </ion-col>
+  </ion-row>
+  <ion-row class="ion-text-center">
+    <ion-col>
+      <br>
+      <ion-label>Sur:</ion-label>
+    </ion-col>
+    <ion-col>
+      <ion-toggle color="{{ name }}" name='sua' [(ngModel)]='captura.sua'></ion-toggle>
+    </ion-col>
+    <ion-col>
+      <ion-toggle color="{{ name }}" name='sun' [(ngModel)]='captura.sun'></ion-toggle>
+    </ion-col>
+    <ion-col>
+      <ion-select name='suf' class="rounded" [(ngModel)]='captura.suf' [compareWith]="compareWithS"
+        placeholder="Seleccione" interface="action-sheet" required>
+        <ion-select-option *ngFor="let brote of brotes" [value]='brote.id'>{{ brote.name }}</ion-select-option>
+      </ion-select>
+    </ion-col>
+  </ion-row>
+  <ion-row class="ion-text-center">
+    <ion-col>
+      <br>
+      <ion-label>Oeste:</ion-label>
+    </ion-col>
+    <ion-col>
+      <ion-toggle color="{{ name }}" name='oea' [(ngModel)]='captura.oea'></ion-toggle>
+    </ion-col>
+    <ion-col>
+      <ion-toggle color="{{ name }}" name='oen' [(ngModel)]='captura.oen'></ion-toggle>
+    </ion-col>
+    <ion-col>
+      <ion-select name='oef' class="rounded" [(ngModel)]='captura.oef' [compareWith]="compareWithO"
+        placeholder="Seleccione" interface="action-sheet" required>
+        <ion-select-option *ngFor="let brote of brotes" [value]='brote.id'>{{ brote.name }}</ion-select-option>
+      </ion-select>
+    </ion-col>
+  </ion-row>
+  <p class="ion-text-center error" *ngIf='captura.fenologia == null'>--- Tienes que seleccionar fenología ---</p>
+  <p class="ion-text-center error" *ngIf='captura.nof == null'>--- Tienes que seleccionar fenología norte ---</p>
+  <p class="ion-text-center error" *ngIf='captura.suf == null'>--- Tienes que seleccionar fenología sur ---</p>
+  <p class="ion-text-center error" *ngIf='captura.esf == null'>--- Tienes que seleccionar fenología este ---</p>
+  <p class="ion-text-center error" *ngIf='captura.oef == null'>--- Tienes que seleccionar fenología oeste ---</p>
+  <p class="ion-text-center esperando" [hidden]='latitud != null && longitud != null && presicion != null'>--- Esperando
+    posición ---</p>
+  <p class="ion-text-center enviado" *ngIf='status == 1'>--- Ya has enviado este registro ---</p>
+  <p class="ion-text-center pendiente" *ngIf='status == 2'>--- Tienes pendiente de enviar este registro ---</p>
+  <ion-button color="{{ name }}" expand="block"
+    [disabled]='formulario.invalid || status == 1 || latitud == null || longitud == null || presicion == null'
+    type="submit">Guardar</ion-button>
+</form>

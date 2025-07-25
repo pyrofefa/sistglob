@@ -1,0 +1,65 @@
+<div *ngFor="let captura of capturas">
+  <ion-card>
+    <ion-card-header>
+        <ion-thumbnail>
+          <ion-img class="img" src="../assets/sims/simmosca.png" ></ion-img>
+        </ion-thumbnail>
+        <ion-card-title>{{ captura.trampa }} | {{ captura.siembra_id }}</ion-card-title>
+        <ion-card-subtitle>{{ captura.campo }}</ion-card-subtitle>
+        <ion-card-subtitle>{{ captura.fechaHora }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content *ngIf='captura.accion_id == 1 || captura.accion_id == 5 || captura.accion_id == 8'>
+      <ion-label>Latitud: {{ captura.y }}</ion-label>
+      <br>
+      <ion-label>Longitud: {{ captura.x }}</ion-label>
+      <hr>
+      <ion-card-subtitle>Captura:</ion-card-subtitle><br>
+        <ion-label>Latitud: {{ captura.latitud }}</ion-label><br>
+        <ion-label>Longitud: {{ captura.longitud }}</ion-label><br>
+        <ion-label>Accion: {{ captura.accion }}</ion-label><br>
+        <ion-label>Fenología: {{ captura.fenologia }}</ion-label><br>
+        <ion-label>Machos: {{ captura.machos }}</ion-label><br>
+        <ion-label>Hembras: {{ captura.hembras }}</ion-label><br>
+        <ion-label>Instalada:
+          <ion-icon *ngIf='captura.instalada == 1' name="checkmark-circle"></ion-icon>
+          <ion-icon *ngIf='captura.instalada == 0' name="close-circle"></ion-icon>
+        </ion-label><br>
+        <ion-label>Cambio de gancho:
+          <ion-icon *ngIf='captura.gancho == 1' name="checkmark-circle"></ion-icon>
+          <ion-icon *ngIf='captura.gancho == 0' name="close-circle"></ion-icon>
+        </ion-label><br>
+        <ion-label>Recebado:
+          <ion-icon *ngIf='captura.recebado == 1' name="checkmark-circle"></ion-icon>
+          <ion-icon *ngIf='captura.recebado == 0' name="close-circle"></ion-icon>
+        </ion-label><br>
+    </ion-card-content>
+    <ion-card-content *ngIf='captura.accion_id == 2'>
+      <ion-label>Latitud: {{ captura.y }}</ion-label>
+      <br>
+      <ion-label>Longitud: {{ captura.x }}</ion-label>
+      <hr>
+      <ion-card-subtitle>Captura:</ion-card-subtitle><br>
+        <ion-label>Latitud: {{ captura.latitud }}</ion-label><br>
+        <ion-label>Longitud: {{ captura.longitud }}</ion-label><br>
+        <ion-label>Accion: {{ captura.accion }}</ion-label><br>
+        <ion-label>Fenología: {{ captura.fenologia }}</ion-label><br>
+        <ion-label>Omision: {{ captura.omision }}</ion-label><br>
+    </ion-card-content>
+    <ion-card-content *ngIf='captura.accion_id == 6'>
+        <ion-label>Latitud: {{ captura.y }}</ion-label>
+        <br>
+        <ion-label>Longitud: {{ captura.x }}</ion-label>
+        <hr>
+        <ion-card-subtitle>Captura:</ion-card-subtitle><br>
+          <ion-label>Latitud: {{ captura.latitud }}</ion-label><br>
+          <ion-label>Longitud: {{ captura.longitud }}</ion-label><br>
+          <ion-label>Accion: {{ captura.accion }}</ion-label><br>
+          <ion-label>Fenología: {{ captura.fenologia }}</ion-label><br>
+          <ion-label>Instalada:
+            <ion-icon *ngIf='captura.instalada == 1' name="checkmark-circle"></ion-icon>
+            <ion-icon *ngIf='captura.instalada == 0' name="close-circle"></ion-icon>
+          </ion-label><br>
+    </ion-card-content>
+  </ion-card>
+  <ion-button expand="block" color='success' type="button" (click)='reenviar(captura.id)'>Reenviar</ion-button>
+</div>

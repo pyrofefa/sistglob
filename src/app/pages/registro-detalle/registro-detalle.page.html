@@ -1,0 +1,19 @@
+<ion-header>
+  <ion-toolbar color="success">
+    <ion-buttons slot="start">
+      <ion-button (click)="atras()">
+        <ion-icon name="arrow-back"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Revisión Información</ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <app-simep *ngIf="name == 'SIMEP'"></app-simep>
+  <app-simgbn *ngIf="name == 'SIMGBN'"></app-simgbn>
+  <app-simdia *ngIf="name == 'SIMDIA'"></app-simdia>
+  <app-simmoscas *ngIf="name == 'SIMMOSCAS'"></app-simmoscas>
+  <app-simpp *ngIf="name == 'SIMPP'"></app-simpp>
+  <app-simto *ngIf="name == 'SIMTO'"></app-simto>
+  <app-simpicudo *ngIf="name == 'SIMPICUDO'"></app-simpicudo>
+</ion-content>

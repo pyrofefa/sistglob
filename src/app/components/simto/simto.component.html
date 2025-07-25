@@ -1,0 +1,108 @@
+<ion-grid *ngFor="let c of campo" class="detail">
+  <ion-row class="align-row">
+    <!-- Viñedo -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="leaf-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Predio:</strong> {{ c.name }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Trampa -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="bug-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Cultivo:</strong> {{ c.productor }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Posición -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="location-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <div *ngIf="latitud != null && longitud != null">
+            <div *ngIf="c | calculateDistance : latitud : longitud : c.latitud : c.longitud as result">
+              <strong>Posición:</strong>
+                ({{ c.latitud | number:"1.0-5":"en-US" }},
+                {{ c.longitud | number:"1.0-5":"en-US" }}) - {{ result.distancia }} M - {{ result.orientacion }}
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Fecha -->
+    <ion-col size="12" class="field-item">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="calendar-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Fecha:</strong>
+          {{ fechaHora | date: 'dd/MMM/yyyy hh:mm:ss a' }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+<ion-card class="welcome-card ion-text-center">
+  <ion-card-content>
+    <ion-row>
+      <ion-col size="4">
+        Longitud <br>
+        {{ longitud | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="3">
+        Latitud <br>
+        {{ latitud | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="3">
+        Precisión <br>
+        {{ presicion | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="1">
+        <ion-button color="{{ name }}" shape="round" size="small" (click)="actualizar()">
+          <ion-icon name="sync"></ion-icon>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <p class="ion-text-center esperando" [hidden]='latitud != null && longitud != null && presicion != null' >--- Esperando posición ---</p>
+  </ion-card-content>
+</ion-card>
+<hr>
+<form #formulario="ngForm" (ngSubmit)="save()">
+  <ion-item>
+    <ion-label>Fenología</ion-label>
+    <ion-select slot="end" name='fenologia' [(ngModel)]='captura.fenologia' placeholder="Seleccione" [compareWith]="compareWith" interface="action-sheet" required>
+      <ion-select-option *ngFor="let fenologia of fenologias" [value]='fenologia.id'>{{ fenologia.name }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+  <ion-item>
+    <ion-input label="# Trips" name='captura' [(ngModel)]='captura.captura' type="number" min="0" pattern="^[0-9]{1,3}$" ></ion-input>
+    <ion-button color="{{ name }}" [disabled]='status == 1 || latitud == null || longitud == null || presicion == null'  slot="end" (click)="agregar()">
+        Guardar
+    </ion-button>
+  </ion-item>
+  <hr>
+  <ion-item class="ion-text-center">
+      <ion-label>{{ captura.totalTrampas }} Trampas</ion-label>
+      <ion-button color="{{ name }}" slot="end" (click)="ver()">
+          Ver
+      </ion-button>
+  </ion-item>
+  <ion-item>
+    <ion-input label="Total" name='total' [(ngModel)]='captura.totalInsectos' type="number" min="0" class="rounded" readonly ></ion-input>
+  </ion-item>
+  <p class="ion-text-center error" *ngIf='captura.fenologia == null' >--- Tienes que seleccionar fenología  ---</p>
+  <p class="ion-text-center enviado" *ngIf='status == 1' >--- Ya has enviado este registro ---</p>
+  <p class="ion-text-center pendiente" *ngIf='status == 2' >--- Tienes pendiente de enviar este registro  ---</p>
+  <ion-button color="{{ name }}" expand="block" [disabled]='formulario.invalid || captura.punto == 0 || status == 1 || latitud == null || longitud == null || presicion == null' type="submit">Guardar</ion-button>
+ </form>

@@ -1,0 +1,85 @@
+<!--<ion-button expand="block" (click)="enviarBaseDatos()">
+  Enviar Base de Datos por Correo
+</ion-button>
+
+
+<ion-button expand="block" (click)="enviarBaseDatos2()">
+  Enviar Base de Datos por Correo
+</ion-button>-->
+<ion-header>
+  <ion-toolbar color="success">
+      <ion-buttons slot="start">
+            <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>
+        Información
+      </ion-title>
+      <ion-buttons slot="end"(click)="presentActionSheet()">
+        <ion-icon name="ellipsis-vertical-outline"></ion-icon>
+      </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <div *ngFor="let p of perfil">
+    <div class="header">
+      <h2>{{ p.username }}</h2>
+    </div>
+    <div class="flex">
+      <div class="border-blue">
+        <div class="border-white">
+          <div class="img-box">
+            <img src="../assets/icon/cesave.png">
+          </div>
+        </div>
+      </div>
+    </div>
+    <ion-card>
+      <ion-card-content class="ion-text-center">
+        <ion-card-title>
+          <ion-icon name="person"></ion-icon>
+          {{ p.nombre }} {{ p.apellido_paterno }} <br> {{ p.junta_name }}
+        </ion-card-title>
+      </ion-card-content>
+    </ion-card>
+    <ion-card>
+      <ion-card-content class="ion-text-center">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="card"></ion-icon>
+              PersonalID <br>  {{ p.personal_id }}
+            </ion-card-title>
+        </ion-card-header>
+      </ion-card-content>
+    </ion-card>
+    <ion-card>
+      <ion-card-content class="ion-text-center">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="Home"></ion-icon>
+            SimID <br> {{ p.user_id }}
+          </ion-card-title>
+        </ion-card-header>
+      </ion-card-content>
+    </ion-card>
+    <ion-card>
+      <ion-card-content class="ion-text-center">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="clipboard"></ion-icon>
+            JuntaID <br> {{ p.junta_id }}
+          </ion-card-title>
+        </ion-card-header>
+      </ion-card-content>
+    </ion-card>
+    <ion-card>
+      <ion-card-content class="ion-text-center">
+        <ion-card-header>
+          <ion-card-title>
+            <ion-icon name="mail"></ion-icon>
+            Email <br> {{ p.email }}
+          </ion-card-title>
+        </ion-card-header>
+      </ion-card-content>
+    </ion-card>
+  </div>
+</ion-content>

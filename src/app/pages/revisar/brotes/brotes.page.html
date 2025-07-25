@@ -1,0 +1,28 @@
+<ion-content>
+  <ng-template #elseBlock>
+    <ion-list>
+      <ion-item *ngFor="let i of [1,2,3,4,5,6,7,8,9,10]">
+        <ion-label class="ion-text-center">
+          <ion-skeleton-text animated style="width: 100%; height: 20px;"></ion-skeleton-text>
+        </ion-label>
+      </ion-item>
+    </ion-list>
+  </ng-template>
+  <div *ngIf="brotes && brotes.length > 0; else elseBlock">
+    <ion-list>
+      <div *ngFor="let brote of brotes">
+        <ion-item class="content">
+          <ion-thumbnail slot="start">
+            <ion-img class="img" src="../assets/sims/simdia.png"></ion-img>
+          </ion-thumbnail>
+          <ion-col>{{ brote.name }}</ion-col>
+        </ion-item>
+      </div>
+    </ion-list>
+  </div>
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color='success' (click)="actualizar()">
+      <ion-icon name="sync"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

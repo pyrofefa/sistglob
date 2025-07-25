@@ -1,0 +1,161 @@
+<ion-grid class="detail">
+  <ion-row class="align-row">
+    <!-- Viñedo -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="leaf-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Trampa:</strong> {{ nombre }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Trampa -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="bug-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Plaga:</strong> {{ plaga }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Posición -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="location-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <div *ngIf="latitud != null && longitud != null">
+            <div *ngIf="campo | calculateDistance : latitud : longitud : latitud_campo : longitud_campo as result">
+              <strong>Posición:</strong>
+              ({{ latitud_campo | number: "1.0-5" : "en-US" }},
+              {{ longitud_campo | number: "1.0-5" : "en-US" }}) -
+              {{ result.distancia }} M - {{ result.orientacion }}
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Fecha -->
+    <ion-col size="12" class="field-item">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="calendar-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Fecha:</strong>
+          {{ fechaHora | date: "dd/MMM/yyyy hh:mm:ss a" }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+<ion-card class="welcome-card ion-text-center">
+  <ion-card-content>
+    <ion-row>
+      <ion-col size="4">
+        Longitud <br>
+        {{ longitud | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="3">
+        Latitud <br>
+        {{ latitud | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="3">
+        Precisión <br>
+        {{ presicion | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="1">
+        <ion-button color="{{ name }}" shape="round" size="small" (click)="actualizar()">
+          <ion-icon name="sync"></ion-icon>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <p class="ion-text-center esperando" [hidden]='latitud != null && longitud != null && presicion != null'>---
+      Esperando posición ---</p>
+  </ion-card-content>
+</ion-card>
+<hr>
+STATUS: {{ status }}
+<form #formulario="ngForm" (ngSubmit)="save(instalacion)">
+  <div *ngIf="instalacion == 1">
+    <!-- Mostrar mensaje si status es 4, 2 o 1 -->
+    <div *ngIf="status == 4 || status == 2 || status == 1">
+      <p class="ion-text-center">Después de la instalación tendrás 10 días para poder visualizar la trampa</p>
+      <ion-button
+        color="{{ name }}"
+        [hidden]="status == 3"
+        [disabled]="latitud == null || longitud == null || presicion == null"
+        expand="block"
+        type="submit">
+        Guardar instalación
+      </ion-button>
+    </div>
+    <!-- Permitir captura si status es 3 -->
+    <div *ngIf="status == 3">
+      <p class="ion-text-center">La instalación de la trampa fue {{ captura.fecha_instalacion | date: 'mediumDate' }}</p>
+      <ion-item>
+        <ion-input
+          label="{{ titulo }}:"
+          name="captura"
+          type="number"
+          min="0"
+          pattern="^[0-9]{1,3}$"
+          [(ngModel)]="captura.captura"
+          required>
+        </ion-input>
+      </ion-item>
+
+      <br>
+      <p class="ion-text-center error" *ngIf="captura.captura == null">
+        --- Tienes que seleccionar {{ titulo }} ---
+      </p>
+
+      <ion-button
+        color="{{ name }}"
+        expand="block"
+        [disabled]="latitud == null || longitud == null || presicion == null"
+        type="submit">
+        Guardar
+      </ion-button>
+    </div>
+  </div>
+
+  <div *ngIf="instalacion == 0">
+    <ion-item>
+      <ion-input
+        label="{{ titulo }}:"
+        name="captura"
+        type="number"
+        min="0"
+        pattern="^[0-9]{1,3}$"
+        [(ngModel)]="captura.captura"
+        required>
+      </ion-input>
+    </ion-item>
+
+    <br>
+    <p class="ion-text-center enviado" *ngIf="status == 1">
+      --- Ya has enviado este registro ---
+    </p>
+    <p class="ion-text-center pendiente" *ngIf="status == 2">
+      --- Tienes pendiente de enviar este registro ---
+    </p>
+    <p class="ion-text-center error" *ngIf="captura.captura == null">
+      --- Tienes que seleccionar {{ titulo }} ---
+    </p>
+
+    <ion-button
+      color="{{ name }}"
+      expand="block"
+      [disabled]="formulario.invalid || status == 1 || latitud == null || longitud == null || presicion == null"
+      type="submit">
+      Guardar
+    </ion-button>
+  </div>
+</form>
+

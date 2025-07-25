@@ -1,0 +1,20 @@
+<ion-header>
+  <ion-toolbar color="success">
+      <ion-buttons slot="start">
+          <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title class="ion-text-center">
+            Sitios
+      </ion-title>
+  </ion-toolbar>
+</ion-header>
+<ion-content>
+  <br>
+  <ion-row class="ion-text-center">
+    <br><br><br>
+    <ion-col *ngFor="let sim of sims" (click)='seleccionar(sim.id, sim.name)' size="4">
+      <ion-img class="img" src="../assets/sims/{{ sim.img }}"></ion-img><br>
+      <p><strong>{{ sim.name }}</strong></p>
+    </ion-col>
+   </ion-row>
+</ion-content>

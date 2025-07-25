@@ -3,8 +3,19 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: true,
+  database: {
+    name: 'trampeo',
+    location: 'default',
+    androidDatabaseLocation: 'system'
+  },
+  APIUrl: 'https://aplicaciones.siafeson.org.mx/public/api/',
+  TOKEN_KEY : 'auth-token-sistglob',
+  PERSONAL_KEY : 'personal-token-sistglob',
+  JUNTA_KEY : 'junta-token-sistglob',
+  TIPO_KEY : 'tipo-token'
 };
+
 
 /*
  * For easier debugging in development mode, you can import the following file

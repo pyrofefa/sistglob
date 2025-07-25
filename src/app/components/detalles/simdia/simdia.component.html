@@ -1,0 +1,119 @@
+<div *ngFor="let captura of capturas">
+  <ion-card>
+    <ion-card-header>
+      <ion-thumbnail>
+        <ion-img class="img" src="../assets/sims/simdia.png"></ion-img>
+      </ion-thumbnail>
+      <ion-card-title>{{ captura.campo }} | {{ captura.siembra_id }}</ion-card-title>
+      <ion-card-subtitle>{{ captura.trampa }}</ion-card-subtitle>
+      <ion-card-subtitle>{{ captura.fechaHora }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-label>Latitud: {{ captura.latitud }}</ion-label>
+      <br>
+      <ion-label>Longitud: {{ captura.longitud }}</ion-label>
+      <hr>
+      <ion-card-subtitle>Datos Trampa:</ion-card-subtitle><br>
+      <ion-label>Capturas: {{ captura.captura }}</ion-label><br>
+      <ion-label>Fenología: {{ captura.fenologia }}</ion-label><br>
+      <ion-label>Latitud: {{ captura.latitud }}</ion-label><br>
+      <ion-label>Longitud: {{ captura.longitud }}</ion-label><br>
+      <ion-label>Instalada:
+        <ion-icon *ngIf='captura.instalada == 1' name="checkmark-circle"></ion-icon>
+        <ion-icon *ngIf='captura.instalada == 0' name="close-circle"></ion-icon>
+      </ion-label><br>
+      <ion-label>Revisada:
+        <ion-icon *ngIf='captura.revisada == 1' name="checkmark-circle"></ion-icon>
+        <ion-icon *ngIf='captura.revisada == 0' name="close-circle"></ion-icon>
+      </ion-label><br>
+      <ion-label *ngIf='captura.revisada == 0'>Motivo: {{ captura.motivo }}</ion-label><br>
+      <br>
+      <hr>
+      <ion-card-subtitle>Datos Árbol:</ion-card-subtitle><br>
+      <ion-row>
+        <ion-col></ion-col>
+        <ion-col>Adultos</ion-col>
+        <ion-col>Ninfas</ion-col>
+        <ion-col>Fenología</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-text-center">Norte:</ion-col>
+        <!--adultos-->
+        <ion-col class="ion-text-center" *ngIf='captura.noa == 1'>
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" *ngIf='captura.noa == 0'>
+          <ion-icon name="close-circle"></ion-icon>
+        </ion-col>
+        <!--ninfas-->
+        <ion-col class="ion-text-center" *ngIf='captura.non == 1'>
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" *ngIf='captura.non == 0'>
+          <ion-icon name="close-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" style="font-size: 8pt;">{{ captura | fenologiaBrotes: captura.nof
+          }}</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-text-center">Sur:</ion-col>
+        <!--adultos-->
+        <ion-col class="ion-text-center" *ngIf='captura.sua == 1'>
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" *ngIf='captura.sua == 0'>
+          <ion-icon name="close-circle"></ion-icon>
+        </ion-col>
+        <!--Ninfas-->
+        <ion-col class="ion-text-center" *ngIf='captura.sun == 1'>
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" *ngIf='captura.sun == 0'>
+          <ion-icon name="close-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" style="font-size: 8pt;">{{ captura | fenologiaBrotes: captura.suf
+          }}</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-text-center">Este:</ion-col>
+        <!--ADULTOS-->
+        <ion-col class="ion-text-center" *ngIf='captura.esa == 1'>
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" *ngIf='captura.esa == 0'>
+          <ion-icon name="close-circle"></ion-icon>
+        </ion-col>
+        <!--NINFAS-->
+        <ion-col class="ion-text-center" *ngIf='captura.esn == 1'>
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" *ngIf='captura.esn == 0'>
+          <ion-icon name="close-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" style="font-size: 8pt;">{{ captura | fenologiaBrotes: captura.esf
+          }}</ion-col>
+      </ion-row>
+      <ion-row>
+        <ion-col class="ion-text-center">Oeste:</ion-col>
+        <!--Adultos-->
+        <ion-col class="ion-text-center" *ngIf='captura.oea == 1'>
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" *ngIf='captura.oea == 0'>
+          <ion-icon name="close-circle"></ion-icon>
+        </ion-col>
+        <!--Ninfas-->
+        <ion-col class="ion-text-center" *ngIf='captura.oen == 1'>
+          <ion-icon name="checkmark-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" *ngIf='captura.oen == 0'>
+          <ion-icon name="close-circle"></ion-icon>
+        </ion-col>
+        <ion-col class="ion-text-center" style="font-size: 8pt;">{{ captura | fenologiaBrotes: captura.oef
+          }}</ion-col>
+      </ion-row>
+      <br>
+    </ion-card-content>
+  </ion-card>
+  <ion-button expand="block" color='success' type="button" (click)='reenviar(captura.id)'>Reenviar</ion-button>
+</div>

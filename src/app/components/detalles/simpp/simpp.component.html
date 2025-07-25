@@ -1,0 +1,37 @@
+<div *ngFor="let captura of capturas">
+  <ion-card *ngFor="let captura of capturas">
+    <ion-card-header>
+      <ion-thumbnail>
+        <ion-img class="img" src="../assets/sims/simpp.png"></ion-img>
+      </ion-thumbnail>
+      <ion-card-title>{{ captura.trampa }} | {{ captura.siembra_id }}</ion-card-title>
+      <ion-card-subtitle>{{ captura.productor }}</ion-card-subtitle>
+      <ion-card-subtitle>{{ captura.fechaHora }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <ion-label>Latitud: {{ captura.y }}</ion-label>
+      <br>
+      <ion-label>Longitud: {{ captura.x }}</ion-label>
+      <hr>
+      <ion-card-subtitle>Captura:</ion-card-subtitle><br>
+      <ion-label>Capturas: {{ captura.captura }}</ion-label><br>
+      <ion-label>Fenología: {{ captura.fenologia }}</ion-label><br>
+      <ion-label>Latitud: {{ captura.latitud }}</ion-label><br>
+      <ion-label>Longitud: {{ captura.longitud }}</ion-label><br>
+      <ion-label>Cambio de atrayente:
+        <ion-icon *ngIf='captura.atrayente == 1' name="checkmark-circle"></ion-icon>
+        <ion-icon *ngIf='captura.atrayente == 0' name="close-circle"></ion-icon>
+      </ion-label><br>
+      <ion-label>Instalada:
+        <ion-icon *ngIf='captura.instalada == 1' name="checkmark-circle"></ion-icon>
+        <ion-icon *ngIf='captura.instalada == 0' name="close-circle"></ion-icon>
+      </ion-label><br>
+      <ion-label>Revisada:
+        <ion-icon *ngIf='captura.revisada == 1' name="checkmark-circle"></ion-icon>
+        <ion-icon *ngIf='captura.revisada == 0' name="close-circle"></ion-icon>
+      </ion-label><br>
+      <ion-label *ngIf='captura.revisada == 0'>Observaciones: {{ captura.observacion }}</ion-label><br>
+    </ion-card-content>
+  </ion-card>
+  <ion-button expand="block" color='success' type="button" (click)='reenviar(captura.id)'>Reenviar</ion-button>
+</div>

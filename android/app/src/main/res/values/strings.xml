@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">SISTGLOB</string>
+    <string name="title_activity_main">SISTGLOB</string>
+    <string name="package_name">siafeson.movil.trampeo</string>
+    <string name="custom_url_scheme">siafeson.movil.trampeo</string>
+</resources>

@@ -1,0 +1,24 @@
+<ion-content>
+  <ion-list>
+    <ion-list-header>
+        <ion-label class="ion-text-justify">
+            <ion-row>
+                <ion-col>Trampa</ion-col>
+                <ion-col>Latitud</ion-col>
+                <ion-col>Longitud</ion-col>
+                <ion-col>Trips</ion-col>
+                <ion-col></ion-col>
+            </ion-row>
+        </ion-label>
+    </ion-list-header>
+    <ion-item button class="content ion-text-justify" *ngFor="let s of simto; let i = index" [disabled]='s.status == 1'>
+      <ion-col>{{ i + 1 }}</ion-col>
+      <ion-col>{{ s.latitud | number:"1.0-5" : "en-US" }} </ion-col>
+      <ion-col>{{ s.longitud | number:"1.0-5" : "en-US"  }} </ion-col>
+      <ion-col>{{ s.captura }} </ion-col>
+      <ion-col>
+          <ion-icon (click)='eliminar(s.id)' color='danger' name="close-circle" size="large"></ion-icon>
+      </ion-col>
+    </ion-item>
+  </ion-list>
+</ion-content>

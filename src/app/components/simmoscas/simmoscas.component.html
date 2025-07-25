@@ -1,0 +1,164 @@
+<ion-grid *ngFor="let c of campo" class="detail">
+  <ion-row class="align-row">
+    <!-- Viñedo -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="leaf-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Trampa:</strong> {{ c.name }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Trampa -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="bug-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Tipo de trampa:</strong> {{ c.productor }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Posición -->
+    <ion-col size="12">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="location-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <div *ngIf="latitud != null && longitud != null">
+            <div *ngIf="c | calculateDistance : latitud : longitud : c.latitud : c.longitud as result">
+              <strong>Posición:</strong>
+                ({{ c.latitud | number:"1.0-5":"en-US" }},
+                {{ c.longitud | number:"1.0-5":"en-US" }}) - {{ result.distancia }} M - {{ result.orientacion }}
+            </div>
+          </div>
+        </ion-col>
+      </ion-row>
+    </ion-col>
+    <!-- Fecha -->
+    <ion-col size="12" class="field-item">
+      <ion-row class="align-center">
+        <ion-col size="auto">
+          <ion-icon name="calendar-outline" class="icon"></ion-icon>
+        </ion-col>
+        <ion-col class="text-container">
+          <strong>Fecha:</strong>
+          {{ fechaHora | date: 'dd/MMM/yyyy hh:mm:ss a' }}
+        </ion-col>
+      </ion-row>
+    </ion-col>
+  </ion-row>
+</ion-grid>
+<ion-card class="welcome-card ion-text-center">
+  <ion-card-content>
+    <ion-row>
+      <ion-col size="4">
+        Longitud <br>
+        {{ longitud | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="3">
+        Latitud <br>
+        {{ latitud | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="3">
+        Precisión <br>
+        {{ presicion | number:"1.0-5" : "en-US" }}
+      </ion-col>
+      <ion-col size="1">
+        <ion-button color="{{ name }}" shape="round" size="small" (click)="actualizar()">
+          <ion-icon name="sync"></ion-icon>
+        </ion-button>
+      </ion-col>
+    </ion-row>
+    <p class="ion-text-center esperando" [hidden]='latitud != null && longitud != null && presicion != null' >--- Esperando posición ---</p>
+  </ion-card-content>
+</ion-card>
+<hr>
+<form #formulario="ngForm" (ngSubmit)="save()">
+  <ion-item>
+    <ion-label>Acción</ion-label>
+    <ion-select slot="end" name='accion' placeholder="Seleccione" [(ngModel)]='captura.accion' [compareWith]="compareWith" interface="action-sheet" >
+      <ion-select-option *ngFor="let accion of acciones" [value]='accion.id'>{{ accion.name }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+  <ion-item>
+    <ion-label>Fenología</ion-label>
+    <ion-select slot="end" name='fenologia' [(ngModel)]='captura.fenologia' [compareWith]="compareWithFenologia" placeholder="Seleccione" interface="action-sheet" required>
+      <ion-select-option *ngFor="let fenologia of fenologias" [value]='fenologia.id'>{{ fenologia.name }}</ion-select-option>
+    </ion-select>
+  </ion-item>
+  <div [hidden]="captura.accion != 1">
+    <ion-item>
+      <ion-input label="Machos" name='macho' type="number" min="0" pattern="^[0-9]{1,3}$" [(ngModel)]="captura.machos" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="Hembras" name='hembra' type="number" min="0" pattern="^[0-9]{1,3}$" [(ngModel)]="captura.hembras" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Instalada</ion-label>
+      <ion-toggle color="{{ name }}" slot="end" name='instalada' [(ngModel)]='captura.instalada'></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label>Cambio de gancho</ion-label>
+      <ion-toggle color="{{ name }}" slot="end" name='gancho' [(ngModel)]='captura.gancho'></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label>Recebado</ion-label>
+      <ion-toggle color="{{ name }}" slot="end" name='Recebado' [(ngModel)]='captura.recebado'></ion-toggle>
+    </ion-item>
+  </div>
+  <div [hidden]="captura.accion != 5">
+    <ion-item>
+      <ion-input label="Machos" name='macho' type="number" min="0" pattern="^[0-9]{1,3}$" [(ngModel)]="captura.machos" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="Hembras" name='hembra' type="number" min="0" pattern="^[0-9]{1,3}$" [(ngModel)]="captura.hembras" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Instalada</ion-label>
+      <ion-toggle color="{{ name }}" slot="end" name='instalada' [(ngModel)]='captura.instalada'></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label>Cambio de gancho</ion-label>
+      <ion-toggle color="{{ name }}" slot="end" name='gancho' [(ngModel)]='captura.gancho'></ion-toggle>
+    </ion-item>
+  </div>
+  <div [hidden]="captura.accion != 2">
+    <ion-item>
+      <ion-label>Omisión</ion-label>
+      <ion-select slot="end" name='omision' placeholder="Seleccione" [(ngModel)]='captura.omision' [compareWith]="compareWithO" interface="action-sheet" [required]='captura.accion == 2' >
+        <ion-select-option *ngFor="let omision of omisiones" [value]='omision.id'>{{ omision.name }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+  </div>
+  <div [hidden]="captura.accion != 6">
+    <ion-item>
+      <ion-label>Instalada</ion-label>
+      <ion-toggle color="name" slot="end" name='instalada' [(ngModel)]='captura.instalada'></ion-toggle>
+    </ion-item>
+  </div>
+  <div [hidden]="captura.accion != 8">
+    <ion-item>
+      <ion-input label="Machos" name='macho' type="number" min="0" pattern="^[0-9]{1,3}$" [(ngModel)]="captura.machos" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-input label="Hembras" name='hembra' type="number" min="0" pattern="^[0-9]{1,3}$" [(ngModel)]="captura.hembras" required></ion-input>
+    </ion-item>
+    <ion-item>
+      <ion-label>Cambio de gancho</ion-label>
+      <ion-toggle color="{{ name }}" slot="end" name='gancho' [(ngModel)]='captura.gancho'></ion-toggle>
+    </ion-item>
+    <ion-item>
+      <ion-label>Recebado</ion-label>
+      <ion-toggle color="{{ name }}" slot="end" name='Recebado' [(ngModel)]='captura.recebado'></ion-toggle>
+    </ion-item>
+  </div>
+  <br>
+  <p class="ion-text-center enviado" *ngIf='status == 1 && captura.accion != 5' >--- Ya has enviado este registro ---</p>
+  <p class="ion-text-center pendiente" *ngIf='status == 2' >--- Tienes pendiente de enviar este registro  ---</p>
+  <ion-button expand="block" color="{{ name }}" [disabled]='formulario.invalid || captura.accion == null ||  (status == 1 && captura.accion != 5 ) || latitud == null || longitud == null || presicion == null' type="submit">Guardar</ion-button>
+</form>

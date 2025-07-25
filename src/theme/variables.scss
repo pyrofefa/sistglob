@@ -1,2 +1,215 @@
 // For information on how to create your own theme, please see:
 // http://ionicframework.com/docs/theming/
+// Ionic Variables and Theming. For more info, please see:
+// http://ionicframework.com/docs/theming/
+
+/** Ionic CSS Variables **/
+:root {
+  /** primary **/
+  --ion-color-primary: #3880ff;
+  --ion-color-primary-rgb: 56, 128, 255;
+  --ion-color-primary-contrast: #ffffff;
+  --ion-color-primary-contrast-rgb: 255, 255, 255;
+  --ion-color-primary-shade: #3171e0;
+  --ion-color-primary-tint: #4c8dff;
+
+  /** secondary **/
+  --ion-color-secondary: #3dc2ff;
+  --ion-color-secondary-rgb: 61, 194, 255;
+  --ion-color-secondary-contrast: #ffffff;
+  --ion-color-secondary-contrast-rgb: 255, 255, 255;
+  --ion-color-secondary-shade: #36abe0;
+  --ion-color-secondary-tint: #50c8ff;
+
+  /** tertiary **/
+  --ion-color-tertiary: #5260ff;
+  --ion-color-tertiary-rgb: 82, 96, 255;
+  --ion-color-tertiary-contrast: #ffffff;
+  --ion-color-tertiary-contrast-rgb: 255, 255, 255;
+  --ion-color-tertiary-shade: #4854e0;
+  --ion-color-tertiary-tint: #6370ff;
+
+  /** success **/
+  --ion-color-success: #2dd36f;
+  --ion-color-success-rgb: 45, 211, 111;
+  --ion-color-success-contrast: #ffffff;
+  --ion-color-success-contrast-rgb: 255, 255, 255;
+  --ion-color-success-shade: #28ba62;
+  --ion-color-success-tint: #42d77d;
+
+  /** warning **/
+  --ion-color-warning: #ffc409;
+  --ion-color-warning-rgb: 255, 196, 9;
+  --ion-color-warning-contrast: #000000;
+  --ion-color-warning-contrast-rgb: 0, 0, 0;
+  --ion-color-warning-shade: #e0ac08;
+  --ion-color-warning-tint: #ffca22;
+
+  /** danger **/
+  --ion-color-danger: #eb445a;
+  --ion-color-danger-rgb: 235, 68, 90;
+  --ion-color-danger-contrast: #ffffff;
+  --ion-color-danger-contrast-rgb: 255, 255, 255;
+  --ion-color-danger-shade: #cf3c4f;
+  --ion-color-danger-tint: #ed576b;
+
+  /** dark **/
+  --ion-color-dark: #222428;
+  --ion-color-dark-rgb: 34, 36, 40;
+  --ion-color-dark-contrast: #ffffff;
+  --ion-color-dark-contrast-rgb: 255, 255, 255;
+  --ion-color-dark-shade: #1e2023;
+  --ion-color-dark-tint: #383a3e;
+
+  /** medium **/
+  --ion-color-medium: #92949c;
+  --ion-color-medium-rgb: 146, 148, 156;
+  --ion-color-medium-contrast: #ffffff;
+  --ion-color-medium-contrast-rgb: 255, 255, 255;
+  --ion-color-medium-shade: #808289;
+  --ion-color-medium-tint: #9d9fa6;
+
+  /** light **/
+  --ion-color-light: #f4f5f8;
+  --ion-color-light-rgb: 244, 245, 248;
+  --ion-color-light-contrast: #000000;
+  --ion-color-light-contrast-rgb: 0, 0, 0;
+  --ion-color-light-shade: #d7d8da;
+  --ion-color-light-tint: #f5f6f9;
+
+  /** SIMEP **/
+  --ion-color-SIMEP: #65d1c4;
+  --ion-color-SIMEP-rgb: 101,209,196;
+  --ion-color-SIMEP-contrast: #ffffff;
+  --ion-color-SIMEP-contrast-rgb: 0,0,0;
+  --ion-color-SIMEP-shade: #59b8ac;
+  --ion-color-SIMEP-tint: #74d6ca;
+
+  /** SIMGBN **/
+  --ion-color-SIMGBN: #6669d0;
+  --ion-color-SIMGBN-rgb: 102,105,208;
+  --ion-color-SIMGBN-contrast: #ffffff;
+  --ion-color-SIMGBN-contrast-rgb: 255,255,255;
+  --ion-color-SIMGBN-shade: #5a5cb7;
+  --ion-color-SIMGBN-tint: #7578d5;
+
+  /** SIMDIA **/
+  --ion-color-SIMDIA: #ff8c00;
+  --ion-color-SIMDIA-rgb: 255,140,0;
+  --ion-color-SIMDIA-contrast: #ffffff;
+  --ion-color-SIMDIA-contrast-rgb: 255, 255, 255;
+  --ion-color-SIMDIA-shade: #ff8c00;
+  --ion-color-SIMDIA-tint: #ff8c00;
+
+  /** SIMPP **/
+  --ion-color-SIMPP: #24921d;
+  --ion-color-SIMPP-rgb: 36,146,29;
+  --ion-color-SIMPP-contrast: #ffffff;
+  --ion-color-SIMPP-contrast-rgb: 255,255,255;
+  --ion-color-SIMPP-shade: #20801a;
+  --ion-color-SIMPP-tint: #3a9d34;
+
+  /** SIMTRAMPEO **/
+  --ion-color-SIMTRAMPEO: #95b681;
+  --ion-color-SIMTRAMPEO-rgb: 149,182,129;
+  --ion-color-SIMTRAMPEO-contrast: #ffffff;
+  --ion-color-SIMTRAMPEO-contrast-rgb: 0,0,0;
+  --ion-color-SIMTRAMPEO-shade: #83a072;
+  --ion-color-SIMTRAMPEO-tint: #a0bd8e;
+
+  /** SIMMOSCA **/
+  --ion-color-SIMMOSCA: #222428;
+  --ion-color-SIMMOSCA-rgb: 34,34,34;
+  --ion-color-SIMMOSCA-contrast: #ffffff;
+  --ion-color-SIMMOSCA-contrast-rgb: 255,255,255;
+  --ion-color-SIMMOSCA-shade: #1e2023;
+  --ion-color-SIMMOSCA-tint: #383a3e;
+
+  /** SIMTO **/
+  --ion-color-SIMTO: #004080;
+  --ion-color-SIMTO-rgb: 0,64,128;
+  --ion-color-SIMTO-contrast: #ffffff;
+  --ion-color-SIMTO-contrast-rgb: 255,255,255;
+  --ion-color-SIMTO-shade: #003871;
+  --ion-color-SIMTO-tint: #1a538d;
+
+  /** SIMPICUDO **/
+  --ion-color-SIMPICUDO: #0080c0;
+  --ion-color-SIMPICUDO-rgb: 0,128,192;
+  --ion-color-SIMPICUDO-contrast: #ffffff;
+  --ion-color-SIMPICUDO-contrast-rgb: 255,255,255;
+  --ion-color-SIMPICUDO-shade: #0071a9;
+  --ion-color-SIMPICUDO-tint: #1a8dc6;
+}
+/* SIMDIA */
+.ion-color-SIMDIA{
+  --ion-color-base: var(--ion-color-SIMDIA) !important;
+  --ion-color-base-rgb: var(--ion-color-SIMDIA-rgb) !important;
+  --ion-color-contrast: var(--ion-color-SIMDIA-contrast) !important;
+  --ion-color-contrast-rgb: var(--ion-color-SIMDIA-contrast-rgb) !important;
+  --ion-color-shade: var(--ion-color-SIMDIA-shade) !important;
+  --ion-color-tint: var(--ion-color-SIMDIA-tint) !important;
+ }
+ /* SIMPP */
+.ion-color-SIMPP{
+  --ion-color-base: var(--ion-color-SIMPP) !important;
+  --ion-color-base-rgb: var(--ion-color-SIMPP-rgb) !important;
+  --ion-color-contrast: var(--ion-color-SIMPP-contrast) !important;
+  --ion-color-contrast-rgb: var(--ion-color-SIMPP-contrast-rgb) !important;
+  --ion-color-shade: var(--ion-color-SIMPP-shade) !important;
+  --ion-color-tint: var(--ion-color-SIMPP-tint) !important;
+ }
+ /* SIMEP */
+ .ion-color-SIMEP{
+  --ion-color-base: var(--ion-color-SIMEP) !important;
+  --ion-color-base-rgb: var(--ion-color-SIMEP-rgb) !important;
+  --ion-color-contrast: var(--ion-color-SIMEP-contrast) !important;
+  --ion-color-contrast-rgb: var(--ion-color-SIMEP-contrast-rgb) !important;
+  --ion-color-shade: var(--ion-color-SIMEP-shade) !important;
+  --ion-color-tint: var(--ion-color-SIMEP-tint) !important;
+ }
+ /* SIMGBN */
+ .ion-color-SIMGBN{
+  --ion-color-base: var(--ion-color-SIMGBN) !important;
+  --ion-color-base-rgb: var(--ion-color-SIMGBN-rgb) !important;
+  --ion-color-contrast: var(--ion-color-SIMGBN-contrast) !important;
+  --ion-color-contrast-rgb: var(--ion-color-SIMGBN-contrast-rgb) !important;
+  --ion-color-shade: var(--ion-color-SIMGBN-shade) !important;
+  --ion-color-tint: var(--ion-color-SIMGBN-tint) !important;
+ }
+/* SIMTRAMPEO */
+.ion-color-SIMTRAMPEO{
+  --ion-color-base: var(--ion-color-SIMTRAMPEO) !important;
+  --ion-color-base-rgb: var(--ion-color-SIMTRAMPEO-rgb) !important;
+  --ion-color-contrast: var(--ion-color-SIMTRAMPEO-contrast) !important;
+  --ion-color-contrast-rgb: var(--ion-color-SIMTRAMPEO-contrast-rgb) !important;
+  --ion-color-shade: var(--ion-color-SIMTRAMPEO-shade) !important;
+  --ion-color-tint: var(--ion-color-SIMTRAMPEO-tint) !important;
+}
+/* SIMMOSCA */
+.ion-color-SIMMOSCA{
+  --ion-color-base: var(--ion-color-SIMMOSCA) !important;
+  --ion-color-base-rgb: var(--ion-color-SIMMOSCA-rgb) !important;
+  --ion-color-contrast: var(--ion-color-SIMMOSCA-contrast) !important;
+  --ion-color-contrast-rgb: var(--ion-color-SIMMOSCA-contrast-rgb) !important;
+  --ion-color-shade: var(--ion-color-SIMMOSCA-shade) !important;
+  --ion-color-tint: var(--ion-color-SIMMOSCA-tint) !important;
+}
+/* SIMTO */
+.ion-color-SIMTO{
+  --ion-color-base: var(--ion-color-SIMTO) !important;
+  --ion-color-base-rgb: var(--ion-color-SIMTO-rgb) !important;
+  --ion-color-contrast: var(--ion-color-SIMTO-contrast) !important;
+  --ion-color-contrast-rgb: var(--ion-color-SIMTO-contrast-rgb) !important;
+  --ion-color-shade: var(--ion-color-SIMTO-shade) !important;
+  --ion-color-tint: var(--ion-color-SIMTO-tint) !important;
+}
+/** SIMPICUDO **/
+.ion-color-SIMPICUDO{
+  --ion-color-base: var(--ion-color-SIMPICUDO) !important;
+  --ion-color-base-rgb: var(--ion-color-SIMPICUDO-rgb) !important;
+  --ion-color-contrast: var(--ion-color-SIMPICUDO-contrast) !important;
+  --ion-color-contrast-rgb: var(--ion-color-SIMPICUDO-contrast-rgb) !important;
+  --ion-color-shade: var(--ion-color-SIMPICUDO-shade) !important;
+  --ion-color-tint: var(--ion-color-SIMPICUDO-tint) !important;
+}
