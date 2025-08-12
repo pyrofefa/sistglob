@@ -32,6 +32,7 @@ export class SimppPage implements OnInit {
     this.simpp
       .getCapturas()
       .then((res) => {
+        console.log(res)
         this.registros = res;
       })
       .catch((error) => {
@@ -43,7 +44,6 @@ export class SimppPage implements OnInit {
     this.route.navigate(['/registro-detalle', item, this.name]);
   }
   actualizar() {
-    this.registros = 0;
     this.ngOnInit();
   }
   async buscar() {

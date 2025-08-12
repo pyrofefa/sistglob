@@ -12,6 +12,12 @@
     <div *ngIf="acciones && acciones.length > 0; else elseBlock">
       <div *ngFor="let accion of acciones">
         <ion-item class="content">
+          <ion-thumbnail slot="start" *ngIf="accion.campana_id == 2">
+            <ion-img class="img" src="../assets/sims/simgbn.png"></ion-img>
+          </ion-thumbnail>
+          <ion-thumbnail slot="start" *ngIf="accion.campana_id == 3">
+            <ion-img class="img" src="../assets/sims/simtrampeo.png"></ion-img>
+          </ion-thumbnail>
           <ion-thumbnail slot="start" *ngIf="accion.campana_id == 4">
             <ion-img class="img" src="../assets/sims/simdia.png"></ion-img>
           </ion-thumbnail>
@@ -20,6 +26,9 @@
           </ion-thumbnail>
           <ion-thumbnail slot="start" *ngIf="accion.campana_id == 6">
             <ion-img class="img" src="../assets/sims/simpp.png"></ion-img>
+          </ion-thumbnail>
+          <ion-thumbnail slot="start" *ngIf="accion.campana_id == 8">
+            <ion-img class="img" src="../assets/sims/simpicudo.png"></ion-img>
           </ion-thumbnail>
           <ion-col>{{ accion.name }}</ion-col>
         </ion-item>

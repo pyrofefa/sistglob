@@ -48,21 +48,23 @@ export class SimmoscasComponent implements OnInit {
           this.extras.loading.dismiss();
           if (result['status'] == 'success') {
             this.captura.capturas$.emit('Captura actualizadas correctamente');
-            this.extras.presentToast(result['message']);
+            this.extras.presentToast('✅ ' + result['message']);
           } else if (result['status'] == 'warning') {
             this.captura.capturas$.emit(
               'Captura el registro ya existe en el servidor',
             );
-            this.extras.presentToast(result['message']);
+            this.extras.presentToast('⚠️ ' + result['message']);
           } else {
-            this.extras.presentToast('Problemas de conexión con el servidor ');
+            this.extras.presentToast(
+              '❌ Problemas de conexión con el servidor ',
+            );
           }
         }, 1500);
       })
       .catch((error) => {
         setTimeout(() => {
           this.extras.loading.dismiss();
-          this.extras.presentToast('Problemas de conexión con el servidor ');
+          this.extras.presentToast('❌ Problemas de conexión con el servidor ');
         }, 1500);
       });
   }

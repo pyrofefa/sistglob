@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "989358387676",
+    "project_id": "citricos-5c222",
+    "storage_bucket": "citricos-5c222.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989358387676:android:6bced13f01e8dc49115f19",
+        "android_client_info": {
+          "package_name": "movil.siafeson.citricos"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCvqOSR5S8ecjqu8PztfGKcJgWN25w648"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:989358387676:android:7d43a0766d7e9bae115f19",
+        "android_client_info": {
+          "package_name": "siafeson.movil.trampeo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDCvqOSR5S8ecjqu8PztfGKcJgWN25w648"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

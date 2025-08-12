@@ -6,6 +6,8 @@ export interface CapturaSimgbn {
     trampa_id: number;
     captura: number;
     fenologia: number;
+    feromona: number;
+    accion: number;
     id: number;
   },
   longitud: number;
@@ -48,6 +50,8 @@ export function buildInsertPayloads(data: CapturaSimgbn): {
     trampa_id: captura.trampa_id,
     captura: captura.captura,
     fenologia_id: captura.fenologia,
+    accion: captura.accion,
+    feromona: captura.feromona,
     fecha,
     semana,
     ano,
@@ -85,7 +89,9 @@ export function buildInsertPayloads(data: CapturaSimgbn): {
     captura.trampa_id,
     siembra_id,
     captura.fenologia,
-    captura.captura
+    captura.captura,
+    captura.accion,
+    captura.feromona
   ];
 
   return { params, values };
@@ -134,6 +140,8 @@ export function buildUpdatePayloads(data: CapturaSimgbn): {
     trampa_id: captura.trampa_id,
     fenologia_id: captura.fenologia,
     captura: captura.captura,
+    accion: captura.accion,
+    feromona: captura.feromona,
     tipo: 'Captura'
   };
 
@@ -155,6 +163,8 @@ export function buildUpdatePayloads(data: CapturaSimgbn): {
     siembra_id,
     captura.fenologia,
     captura.captura,
+    captura.accion,
+    captura.feromona,
     captura.id // este va al final porque es el WHERE id = ?
   ];
 

@@ -9,6 +9,8 @@ export function buildCapturaSimtrampeo(
     latitud_rev: number;
     longitud_rev: number;
     fecha_instalacion: string;
+    feromona: number;
+    accion: number;
     id: number;
   },
   junta_id: string,
@@ -38,6 +40,8 @@ export function buildCapturaSimtrampeo(
       latitud_rev: captura.latitud_rev,
       longitud_rev: captura.longitud_rev,
       fecha_instalacion: captura.fecha_instalacion,
+      feromona: captura.feromona ?? 0,
+      accion: captura.accion,
       id: captura.id
     },
     presicion,

@@ -50,6 +50,8 @@ export class SimppComponent implements OnInit {
     observacion: null,
     atrayente: null,
     feromona: null,
+    instalada: null,
+    revisada: null,
   };
   status: any;
 
@@ -183,17 +185,20 @@ export class SimppComponent implements OnInit {
           this.extras.loading.dismiss();
           this.back.navigate(['/ubicaciones/1']);
           this.extras.presentToast(
-            'No se encontró la ubicación intente nuevamente.',
+            '❌  No se encontró la ubicación intente nuevamente.',
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
             if (res[0].id != null) {
               for (let result of res) {
+                console.log(result);
                 this.captura.id = result.id;
                 this.captura.captura = result.captura;
                 this.captura.fenologia = result.fenologia_id;
                 this.captura.observacion = result.observacion;
                 this.captura.atrayente = result.atrayente;
+                this.captura.feromona = result.feromona;
+                this.captura.accion = result.accion;
                 this.status = result.status;
               }
             }
@@ -237,7 +242,7 @@ export class SimppComponent implements OnInit {
   }
   getAcciones() {
     this.accion
-      .getAcciones(5)
+      .getAcciones(this.campana)
       .then((res) => {
         this.acciones = res;
         this.compareWithAccion = this.compareWithAccionesFn;
@@ -262,59 +267,49 @@ export class SimppComponent implements OnInit {
       });
   }
   seleccionar() {
-    if (this.captura.observacion == 1) {
-      this.captura.instalada = true;
+    if (this.captura.accion == 3) {
+      this.captura.captura = 0;
+      this.captura.instalada = 1;
     } else {
-      this.captura.instalada = false;
-    }
-  }
-
-  cambio() {
-    if (this.captura.revisada == false) {
-      this.captura.captura = null;
-      this.captura.fenologia = null;
-    }
-    if (this.captura.revisada == true) {
       this.captura.observacion = null;
-      if (this.captura.instalada == true) {
-        this.captura.instalada = false;
-      }
+      this.captura.instalada = 0;
     }
   }
 
   async save() {
-    if (
-      !this.presicion ||
-      this.presicion > 16 ||
-      !this.latitud ||
-      !this.longitud
-    ) {
+    if (this.presicion == null || this.presicion > 16) {
+      setTimeout(() => {
+        this.extras.loading.dismiss();
+        this.extras.presentToast(
+          'La precisión debe de ser menor a 16 para poder guardar el registro',
+        );
+      }, 1500);
+    } else if (this.latitud == null || this.longitud == null) {
       setTimeout(() => {
         this.extras.loading.dismiss();
         this.extras.presentToast('No se encontró una posición válida');
       }, 1500);
-      return;
-    }
-
-    if (this.status === 2) {
-      const alert = await this.alertController.create({
-        header: 'Ya has hecho este registro anteriormente',
-        message: '¿Estás seguro que deseas sobrescribir?',
-        buttons: [
-          { text: 'No', role: 'cancel', cssClass: 'secondary' },
-          {
-            text: 'Sí',
-            handler: async () => {
-              await alert.dismiss();
-              this.guardarRegistro(true);
-            },
-          },
-        ],
-      });
-
-      await alert.present();
     } else {
-      this.guardarRegistro(false);
+      if (this.status === 2) {
+        const alert = await this.alertController.create({
+          header: 'Ya has hecho este registro anteriormente',
+          message: '¿Estás seguro que deseas sobrescribir?',
+          buttons: [
+            { text: 'No', role: 'cancel', cssClass: 'secondary' },
+            {
+              text: 'Sí',
+              handler: async () => {
+                await alert.dismiss();
+                this.guardarRegistro(true);
+              },
+            },
+          ],
+        });
+
+        await alert.present();
+      } else {
+        this.guardarRegistro(false);
+      }
     }
   }
 
@@ -329,6 +324,21 @@ export class SimppComponent implements OnInit {
     );
     this.distancia_qr = result.distancia;
     this.orientacion = result.orientacion;
+
+    switch (this.captura.accion) {
+      case 1:
+        this.captura.revisada = 1;
+        this.captura.instalada = 0;
+        break;
+      case 2:
+        this.captura.instalada = 1;
+        this.captura.revisada = 1;
+        break;
+      case 3:
+        this.captura.instalada = 0;
+        this.captura.revisada = 0;
+        break;
+    }
 
     try {
       const capturaData = buildCapturaSimpp(

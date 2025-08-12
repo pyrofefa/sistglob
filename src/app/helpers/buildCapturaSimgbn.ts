@@ -7,7 +7,6 @@ export function buildCapturaSimgbn(
     observacion: number;
     captura: number;
     fenologia: number;
-    atrayente: number;
     feromona: number,
     id: number;
   },
@@ -34,6 +33,8 @@ export function buildCapturaSimgbn(
       trampa_id: captura.trampa_id,
       fenologia: captura.fenologia,
       captura: captura.captura,
+      feromona: captura.feromona ?? 0,
+      accion: captura.accion,
       id: captura.id
     },
     longitud,

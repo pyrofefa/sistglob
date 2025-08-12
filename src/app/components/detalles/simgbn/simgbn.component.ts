@@ -8,31 +8,34 @@ import { SimgbnService } from 'src/app/services/simgbn.service';
   selector: 'app-simgbn',
   templateUrl: './simgbn.component.html',
   styleUrls: ['./simgbn.component.scss'],
-  standalone: false
+  standalone: false,
 })
-export class SimgbnComponent  implements OnInit {
+export class SimgbnComponent implements OnInit {
   id: any = null;
   devid: any;
   capturas: any = [];
 
-   constructor(
+  constructor(
     public alertController: AlertController,
     private route: ActivatedRoute,
     public extras: AssetsService,
     public captura: SimgbnService,
-    public back: Router
+    public back: Router,
   ) {}
 
   ngOnInit() {
-     this.id = this.route.paramMap.subscribe(id => {
+    this.id = this.route.paramMap.subscribe((id) => {
       this.devid = id.get('id');
-        this.captura.getCapturaId(this.devid).then(res =>{
+      this.captura
+        .getCapturaId(this.devid)
+        .then((res) => {
           this.capturas = res;
-        }).catch(error =>{
+        })
+        .catch((error) => {
           console.log(error);
           alert(error);
         });
-    })
+    });
   }
 
   reenviar(id: any) {
@@ -45,23 +48,24 @@ export class SimgbnComponent  implements OnInit {
           this.extras.loading.dismiss();
           if (result['status'] == 'success') {
             this.captura.capturas$.emit('Captura actualizadas correctamente');
-            this.extras.presentToast(result['message']);
+            this.extras.presentToast('✅ ' + result['message']);
           } else if (result['status'] == 'warning') {
             this.captura.capturas$.emit(
-              'Captura el registro ya existe en el servidor'
+              'Captura el registro ya existe en el servidor',
             );
-            this.extras.presentToast(result['message']);
+            this.extras.presentToast('⚠️ ' + result['message']);
           } else {
-            this.extras.presentToast('Problemas de conexión con el servidor ');
+            this.extras.presentToast(
+              '❌ Problemas de conexión con el servidor ',
+            );
           }
         }, 1500);
       })
       .catch((error) => {
         setTimeout(() => {
           this.extras.loading.dismiss();
-          this.extras.presentToast('Problemas de conexión con el servidor ');
+          this.extras.presentToast('❌ Problemas de conexión con el servidor ');
         }, 1500);
       });
   }
-
 }

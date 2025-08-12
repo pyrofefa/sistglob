@@ -1,0 +1,31 @@
+<div *ngFor="let captura of capturas">
+  <ion-card *ngFor="let captura of capturas">
+    <ion-card-header>
+        <ion-thumbnail>
+          <ion-img class="img" src="../assets/sims/simtrampeo.png" ></ion-img>
+        </ion-thumbnail>
+        <ion-card-title>{{ captura.trampa }} | {{ captura.siembra_id }}</ion-card-title>
+        <ion-card-subtitle>{{ captura.name }}</ion-card-subtitle>
+        <ion-card-subtitle>{{ captura.fechaHora }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+        <ion-label>Latitud: {{ captura.latitud }}</ion-label>
+        <br>
+        <ion-label>Longitud: {{ captura.longitud }}</ion-label>
+        <hr>
+        <ion-card-subtitle>Captura:</ion-card-subtitle><br>
+        <ion-label>Capturas: {{ captura.captura }}</ion-label><br>
+        <ion-label>Fecha de instalación: {{ captura.fecha_instalacion }}</ion-label><br>
+        <ion-label>Latitud de instalación: {{ captura.latitud_ins }}</ion-label><br>
+        <ion-label>Longitud de instalación: {{ captura.longitud_ins }}</ion-label>
+        <hr>
+        <ion-label>Latitud de revisión: {{ captura.latitud_rev }}</ion-label><br>
+        <ion-label>Longitud de revisión: {{ captura.longitud_rev }}</ion-label><br>
+        <ion-label>Cambio de feromona:
+        <ion-icon *ngIf='captura.feromona == 1' name="checkmark-circle"></ion-icon>
+        <ion-icon *ngIf='captura.feromona == 0' name="close-circle"></ion-icon>
+      </ion-label>
+    </ion-card-content>
+  </ion-card>
+  <ion-button expand="block" color='success' type="button" (click)='presentActionSheet(captura.id, captura.status)'>Acciones</ion-button>
+</div>

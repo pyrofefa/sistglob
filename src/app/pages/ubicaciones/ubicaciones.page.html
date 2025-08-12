@@ -53,7 +53,7 @@
       <div *ngFor="let trampa of ( trampas | orderBy: 'distancia' )">
         <ion-item-sliding
           *ngIf="(trampa | calculateDistance: latitud ?? 0.0 : longitud ?? 0.0 : trampa.latitud: trampa.longitud).distancia < distancia">
-          <ion-item button (click)="captura(trampa.id_bit, name, id)">
+          <ion-item [disabled]="bloquearTrampas" button (click)="captura(trampa.id_bit, name, id)">
             <ion-label class="ion-text-center">
               {{ trampa.name }}
               <span>
@@ -68,6 +68,11 @@
       </div>
     </ion-list>
   </div>
+  <ion-fab *ngIf="id == 3" vertical="bottom" horizontal="start" slot="fixed">
+    <ion-fab-button (click)="bajar()" color='{{ name }}' [disabled]='latitud == null && longitud == null && presicion == null'>
+      <ion-icon name="cloud-download-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
     <ion-fab-button (click)="actualizar()" color='{{ name }}' [disabled]='latitud == null && longitud == null && presicion == null'>
       <ion-icon name="sync"></ion-icon>

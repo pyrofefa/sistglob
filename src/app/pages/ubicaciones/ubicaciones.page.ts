@@ -10,6 +10,7 @@ moment.locale('es');
 import { registerPlugin } from '@capacitor/core';
 import { AssetsService } from 'src/app/services/assests.service';
 import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
+import { Preferences } from '@capacitor/preferences';
 
 const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
 
@@ -40,9 +41,15 @@ export class UbicacionesPage implements OnInit, OnDestroy {
 
   fechaHora: any = moment().format('YYYY-MM-DD HH:mm:ss');
   fechaGPS: any;
+  fecha: any;
   interval: any;
 
   horaValida: boolean = true;
+  bloquearTrampas: boolean = true;
+
+  user_id: any;
+  personal_id: any;
+  junta_id: any;
 
   constructor(
     public extras: AssetsService,
@@ -109,24 +116,36 @@ export class UbicacionesPage implements OnInit, OnDestroy {
             sistemaMoment.diff(gpsMoment, 'seconds'),
           );
 
+          const mismoDia = gpsMoment.isSame(sistemaMoment, 'day');
+
           if (data.isMock) {
-            alert('❗Ubicación simulada detectada.');
+            this.extras.presentToast('❗Ubicación simulada detectada.');
+            this.bloquearTrampas = true;
           } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
-            alert('⚠️ Ubicación sospechosa: salto o velocidad irreal.');
+            this.extras.presentToast('⚠️ Ubicación sospechosa: salto o velocidad irreal.');
+            this.bloquearTrampas = true;
           }
 
-          this.fechaGPS = gpsMoment.format('YYYY-MM-DD HH:mm:ss');
-          this.fechaHora = sistemaMoment.format('YYYY-MM-DD HH:mm:ss');
+          this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
+          this.fecha = sistemaMoment.format('YYYY-MM-DD');
 
-          if (diferenciaSegundos > 5) {
-            // tolerancia de 5 segundos
+          if (!mismoDia) {
             this.horaValida = false;
+            this.bloquearTrampas = true;
+            this.extras.presentToast(
+              '⚠️ La fecha del GPS no coincide con la del sistema. Verifica la fecha del dispositivo.',
+            );
+          } else if (diferenciaSegundos > 5) {
+            this.horaValida = false;
+            this.bloquearTrampas = true;
             this.extras.presentToast(
               '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.',
             );
           } else {
+            this.bloquearTrampas = false;
             this.horaValida = true;
           }
+
           this.getTrampas();
         });
       });
@@ -166,8 +185,8 @@ export class UbicacionesPage implements OnInit, OnDestroy {
       });
   }
 
-  captura(ubicacion:any, name:any, campana:any){
-    this.nav.navigate(['/capturas', ubicacion, name, campana ]);
+  captura(ubicacion: any, name: any, campana: any) {
+    this.nav.navigate(['/capturas', ubicacion, name, campana]);
   }
 
   actualizar() {
@@ -181,5 +200,31 @@ export class UbicacionesPage implements OnInit, OnDestroy {
     return this.fechaHora
       ? moment(this.fechaHora).format('dddd, D [de] MMMM [de] YYYY · HH:mm')
       : '';
+  }
+
+  bajar() {
+    this.loadUserPreferences();
+    this.trampas = [];
+    this.tabla
+      .getSimtrampeo(this.personal_id, this.junta_id)
+      .then(() => {
+        this.ngOnInit();
+      })
+      .catch((error) => {
+        console.log(error);
+      });
+  }
+
+  async loadUserPreferences() {
+    const userRes = await Preferences.get({ key: 'auth-token-sistglob' });
+    this.user_id = userRes.value;
+
+    const juntaRes = await Preferences.get({ key: 'junta-token-sistglob' });
+    this.junta_id = juntaRes.value;
+
+    const personalRes = await Preferences.get({
+      key: 'personal-token-sistglob',
+    });
+    this.personal_id = personalRes.value;
   }
 }

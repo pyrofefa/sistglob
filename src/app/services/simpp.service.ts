@@ -65,18 +65,18 @@ export class SimppService {
   }
 
   async getCapturas(): Promise<any[]> {
-    const sql = `SELECT simpp.id, simpp.user_id, simpp.fecha, simpp.fechaHora, simpp.longitud, simpp.latitud, simpp.accuracy, simpp.distancia_qr, simpp.status, simpp.trampa_id, simpp.captura, simpp.fenologia_id, trampas.name FROM simpp INNER JOIN trampas ON simpp.trampa_id = trampas.id_bit WHERE trampas.campana_id = 8 ORDER BY simpp.fechaHora DESC`;
+    const sql = `SELECT simpp.id, simpp.user_id, simpp.fecha, simpp.fechaHora, simpp.longitud, simpp.latitud, simpp.accuracy, simpp.distancia_qr, simpp.status, simpp.trampa_id, simpp.captura, simpp.fenologia_id, trampas.name FROM simpp INNER JOIN trampas ON simpp.trampa_id = trampas.id_bit WHERE trampas.campana_id = 6 ORDER BY simpp.fechaHora DESC`;
     const res = await this.db?.query(sql);
     return res?.values ?? [];
   }
   async getBuscar(fecha: any): Promise<any[]> {
-    const sql = `SELECT simpp.id, simpp.user_id, simpp.fecha, simpp.fechaHora, simpp.longitud, simpp.latitud, simpp.accuracy, simpp.distancia_qr, simpp.status, simpp.trampa_id, simpp.captura, simpp.fenologia_id, trampas.name FROM simpp INNER JOIN trampas ON simpp.trampa_id = trampas.id_bit WHERE trampas.campana_id = 8 AND simpp.fecha = ? ORDER BY simpp.id DESC`;
+    const sql = `SELECT simpp.id, simpp.user_id, simpp.fecha, simpp.fechaHora, simpp.longitud, simpp.latitud, simpp.accuracy, simpp.distancia_qr, simpp.status, simpp.trampa_id, simpp.captura, simpp.fenologia_id, trampas.name FROM simpp INNER JOIN trampas ON simpp.trampa_id = trampas.id_bit WHERE trampas.campana_id = 6 AND simpp.fecha = ? ORDER BY simpp.id DESC`;
     const res = await this.db?.query(sql, [fecha]);
     return res?.values ?? [];
   }
 
   async getCapturaId(id: number): Promise<any[]> {
-    const sql = `SELECT fenologias.name as fenologia, trampas.name as trampa, simpp.id, simpp.siembra_id, simpp.captura, simpp.feromona, acciones.name as accion,  simpp.longitud as y, simpp.latitud as x, simpp.accuracy, simpp.fechaHora, simpp.fecha, trampas.latitud, trampas.longitud, trampas.campo FROM trampas INNER JOIN simpp ON simpp.trampa_id = trampas.id_bit LEFT JOIN fenologias ON simpp.fenologia_id = fenologias.id LEFT JOIN acciones ON simpp.accion = acciones.id WHERE simpp.id = ? AND fenologias.campana_id = 8 AND trampas.campana_id = 8 LIMIT 1`;
+    const sql = `SELECT observaciones.name as observacion, fenologias.name AS fenologia,	trampas.name AS trampa,	simpp.id,	simpp.siembra_id,	simpp.captura, simpp.feromona,	acciones.name AS accion,	simpp.longitud AS y,	simpp.latitud AS x,	simpp.accuracy,	simpp.fechaHora,	simpp.fecha,	trampas.latitud,	trampas.longitud,	trampas.campo,	simpp.atrayente,	simpp.revisada,	simpp.instalada FROM trampas INNER JOIN simpp ON simpp.trampa_id = trampas.id_bit	LEFT JOIN fenologias ON simpp.fenologia_id = fenologias.id LEFT JOIN observaciones ON simpp.observacion = observaciones.id	INNER JOIN acciones ON simpp.accion = acciones.id WHERE	simpp.id = ? AND fenologias.campana_id = 6 AND trampas.campana_id = 6 AND acciones.campana_id = 6 LIMIT 1`;
     const res = await this.db?.query(sql, [id]);
     return res?.values ?? [];
   }
@@ -116,8 +116,10 @@ export class SimppService {
             captura,
             fenologia_id,
             atrayente,
-            feromona
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+            feromona,
+            instalada,
+            revisada
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     try {
       const result = await this.db?.run(sql, values);
       const lastId = result?.changes?.lastId;
@@ -174,12 +176,12 @@ export class SimppService {
               fenologia_id = ?,
               atrayente = ?,
               feromona = ?,
-              fenologia = ?
+              instalada = ?,
+              revisada = ?
             WHERE id = ?`;
 
     try {
-      const result = await this.db?.run(sql, values);
-      const lastId = result?.changes?.lastId;
+      await this.db?.run(sql, values);
 
       const response: any = await lastValueFrom(
         this.http.post<ApiResponse>(url, params),
@@ -187,7 +189,7 @@ export class SimppService {
 
       if (response.status === 'success' || response.status === 'warning') {
         const updateStatusSql = 'UPDATE simpp SET status = 1 WHERE id = ?';
-        await this.db?.run(updateStatusSql, [lastId]);
+        await this.db?.run(updateStatusSql, [data.captura.id]);
         return {
           status: response.status,
           message: response.message ?? 'Captura actualizada correctamente',

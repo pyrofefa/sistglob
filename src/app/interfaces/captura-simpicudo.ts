@@ -48,10 +48,6 @@ export function buildInsertPayloads(data: CapturaSimpicudo): {
 
   const params = {
     trampa_id: captura.trampa_id,
-    accion: captura.accion,
-    feromona: captura.feromona,
-    fenologia: captura.fenologia,
-    captura: captura.captura,
     fecha,
     semana,
     ano,
@@ -68,6 +64,10 @@ export function buildInsertPayloads(data: CapturaSimpicudo): {
     status: 1,
     version,
     siembra_id,
+    captura: captura.captura,
+    fenologia: captura.fenologia,
+    accion: captura.accion,
+    feromona: captura.feromona ? 1 : 0,
     tipo: 'Captura'
   };
 

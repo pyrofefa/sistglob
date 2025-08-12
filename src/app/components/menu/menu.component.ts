@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { App } from '@capacitor/app';
 import { TablasService } from 'src/app/services/tablas.service';
@@ -19,6 +19,7 @@ export class MenuComponent implements OnInit {
     public alertController: AlertController,
     public tabla: TablasService,
     public extras: AssetsService,
+    private zone: NgZone
   ) {}
   ngOnInit() {
     this.checkUpdates();
@@ -114,7 +115,9 @@ export class MenuComponent implements OnInit {
   async checkUpdates() {
     try {
       const info = await App.getInfo();
-      this.version = info.version;
+      this.zone.run(() => {
+        this.version = info.version;
+      });
       console.log(this.version);
     } catch (error) {
       console.error('Error obteniendo versión', error);

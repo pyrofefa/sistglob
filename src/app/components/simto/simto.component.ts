@@ -187,7 +187,7 @@ export class SimtoComponent implements OnInit {
           this.extras.loading.dismiss();
           this.back.navigate(['/ubicaciones/1']);
           this.extras.presentToast(
-            'No se encontró la ubicación intente nuevamente.',
+            '❌  No se encontró la ubicación intente nuevamente.',
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
@@ -364,19 +364,20 @@ export class SimtoComponent implements OnInit {
   }
 
   async save() {
-    if (
-      !this.presicion ||
-      this.presicion > 16 ||
-      !this.latitud ||
-      !this.longitud
-    ) {
+    if (this.presicion == null || this.presicion > 16) {
+      setTimeout(() => {
+        this.extras.loading.dismiss();
+        this.extras.presentToast(
+          'La precisión debe de ser menor a 16 para poder guardar el registro',
+        );
+      }, 1500);
+    } else if (this.latitud == null || this.longitud == null) {
       setTimeout(() => {
         this.extras.loading.dismiss();
         this.extras.presentToast('No se encontró una posición válida');
       }, 1500);
-      return;
-    } else {
-      this.guardarRegistro();
+    }else {
+      this.guardarRegistro()
     }
   }
 

@@ -84,11 +84,11 @@ export function buildInsertPayloads(data: CapturaSimep): {
     captura.instalada,
     ano,
     semana,
+    id_bd_cel,
     captura.siembra_id,
-    captura.instalada, // revisada
+    null, // revisada
     captura.recomendacion,
-    version,
-    captura.id,
+    version
   ];
 
 
@@ -158,7 +158,7 @@ export function buildUpdatePayloads(data: CapturaSimep): {
     ano,
     semana,
     captura.siembra_id,
-    captura.instalada, // revisada
+    null, // revisada
     captura.recomendacion,
     version,
     captura.id // este va al final porque es el WHERE id = ?

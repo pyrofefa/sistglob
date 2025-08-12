@@ -1,11 +1,14 @@
-/*import { Component } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { File } from '@awesome-cordova-plugins/file/ngx';
 import { EmailComposer } from '@awesome-cordova-plugins/email-composer/ngx';
-import { SQLiteConnection, CapacitorSQLite } from '@capacitor-community/sqlite';
-import { Filesystem, Directory } from '@capacitor/filesystem';
-import { DatabaseExportService } from 'src/app/services/database-export.service';
+import { ActionSheetController, AlertController } from '@ionic/angular';
+import { AuthenticationService } from 'src/app/services/authentication.service';
+import { InfoService } from 'src/app/services/info.service';
+import { registerPlugin } from '@capacitor/core';
+import { DatabaseCopierPlugin } from 'src/app/interfaces/database-copier-plugin';
 
-const sqlite = new SQLiteConnection(CapacitorSQLite);
+// Plugin personalizado para copiar base de datos
+const DatabaseCopier = registerPlugin<DatabaseCopierPlugin>('CopyFileSiafeson');
 
 @Component({
   selector: 'app-info',
@@ -13,126 +16,77 @@ const sqlite = new SQLiteConnection(CapacitorSQLite);
   styleUrls: ['./info.page.scss'],
   standalone: false,
 })
-export class InfoPage {
-  constructor(private dbExportService: DatabaseExportService) {}
-
-  ngOnInit() {
-    // Aquí puedes llamar la función si quieres exportar al cargar la página
-  }
-  enviarBaseDatos() {
-    this.dbExportService.exportarComoJsonYEnviar();
-  }
-
-   enviarBaseDatos2() {
-    this.dbExportService.exportarDbYEnviar();
-  }
-}*/
-import { Component, OnInit, OnDestroy } from '@angular/core';
-import { File } from '@awesome-cordova-plugins/file/ngx';
-import { EmailComposer } from '@awesome-cordova-plugins/email-composer/ngx';
-import { ActionSheetController, AlertController } from '@ionic/angular';
-import { AuthenticationService } from 'src/app/services/authentication.service';
-import { InfoService } from 'src/app/services/info.service';
-
-@Component({
-  selector: 'app-info',
-  templateUrl: './info.page.html',
-  styleUrls: ['./info.page.scss'],
-  standalone: false
-})
 export class InfoPage implements OnInit, OnDestroy {
   perfil: any = [];
-  interval: any;
+  private intervalId: any;
 
   constructor(
-    public actionSheetController: ActionSheetController,
+    private actionSheetCtrl: ActionSheetController,
     private emailComposer: EmailComposer,
-    public alertController: AlertController,
-    private login: AuthenticationService,
+    private alertCtrl: AlertController,
+    private authService: AuthenticationService,
     private file: File,
-    public info: InfoService
+    private infoService: InfoService,
   ) {}
 
   ngOnInit() {
-    this.getPerfil();
-    // Copiar BD a externalDataDirectory (o a la carpeta que quieras)
-    /*this.file
-      .copyFile(
-        this.file.dataDirectory,
-        'simpra.db',
-        this.file.externalDataDirectory,
-        'simpra.db'
-      )
-      .then(() => {
-        console.log('Archivo copiado a:', this.file.externalDataDirectory);
-      })
-      .catch((err) => {
-        console.error('Error copiando archivo:', err);
-      });*/
-
-    this.getUser();
+    this.loadUserInfo();
+    this.copyDatabaseToExternalStorage();
+    this.copyDatabaseOldToExternalStorage();
+    this.startUserUpdateInterval();
   }
 
   ngOnDestroy() {
-    clearInterval(this.interval);
+    this.stopUserUpdateInterval();
   }
 
-  getPerfil() {
-    this.info
-      .getProfile()
-      .then((res) => {
-        this.perfil = res;
-      })
-      .catch(() => {});
+  private async loadUserInfo(): Promise<void> {
+    try {
+      this.perfil = await this.infoService.getProfile();
+    } catch (error) {
+      console.warn('Error obteniendo perfil:', error);
+    }
   }
 
-  async presentActionSheet() {
-    const actionSheet = await this.actionSheetController.create({
+  private startUserUpdateInterval(): void {
+    this.intervalId = setInterval(() => {
+      this.authService.getUser();
+      this.loadUserInfo();
+    }, 4000);
+  }
+
+  private stopUserUpdateInterval(): void {
+    clearInterval(this.intervalId);
+  }
+
+  async presentActionSheet(): Promise<void> {
+    const actionSheet = await this.actionSheetCtrl.create({
       buttons: [
         {
           icon: 'log-out-outline',
           text: 'Cerrar sesión',
-          handler: () => this.presentAlert(),
+          handler: () => this.confirmLogout(),
         },
         {
           text: 'Enviar archivo',
           icon: 'share-outline',
-          handler: () => this.enviar(),
+          handler: () => this.sendDatabaseByEmail(),
         },
         {
           text: 'Cancelar',
           icon: 'close',
           role: 'cancel',
-        }
+        },
       ],
     });
     await actionSheet.present();
   }
 
-  getUser() {
-    this.interval = setInterval(() => {
-      this.login.getUser();
-      this.getPerfil();
-    }, 4000);
-  }
-
-  enviar() {
-    const filePath = this.file.externalDataDirectory + 'simpra.db';
-    const email = {
-      attachments: [filePath],
-      subject: 'Archivo base de datos SIMPRA',
-      isHtml: true,
-    };
-    this.emailComposer.open(email).catch((err) => {
-      console.error('Error abriendo email composer:', err);
-    });
-  }
-
-  async presentAlert() {
-    const alert = await this.alertController.create({
+  private async confirmLogout(): Promise<void> {
+    const alert = await this.alertCtrl.create({
       header: 'Cerrar sesión',
-      message:
-        '¿Estás seguro que quieres cerrar sesión? <br><br> <strong>Atención:</strong> Esta acción eliminará todos tus registros',
+      subHeader: '¿Estás seguro que quieres cerrar sesión?',
+      message:'Atención: Esta acción eliminará todos tus registros',
       buttons: [
         {
           text: 'No',
@@ -141,13 +95,54 @@ export class InfoPage implements OnInit, OnDestroy {
         {
           text: 'Sí',
           handler: () => {
-            this.login.logout();
-            this.ngOnDestroy();
-            this.getPerfil();
+            this.authService.logout();
+            this.stopUserUpdateInterval();
+            this.loadUserInfo();
           },
         },
       ],
     });
     await alert.present();
+  }
+
+  private async copyDatabaseToExternalStorage(): Promise<void> {
+    try {
+      await DatabaseCopier.copyDatabaseToExternal({
+        dbName: 'trampeoSQLite.db',
+      });
+      console.log('Base de datos copiada exitosamente');
+    } catch (error) {
+      console.error('Error copiando base de datos:', error);
+    }
+  }
+   private async copyDatabaseOldToExternalStorage(): Promise<void> {
+    try {
+      await DatabaseCopier.copyDatabaseToExternal({
+        dbName: 'trampeo.db',
+      });
+      console.log('Base de datos copiada exitosamente');
+    } catch (error) {
+      console.error('Error copiando base de datos:', error);
+    }
+  }
+
+  private sendDatabaseByEmail(): void {
+    const dbFileName = 'trampeoSQLite.db';
+    const filePath = this.file.externalDataDirectory + dbFileName;
+
+    const dbOldFileName = 'trampeo.db';
+    const filePathOld = this.file.externalDataDirectory + dbOldFileName;
+
+
+    const email = {
+      attachments: [filePath, filePathOld],
+      subject: 'Archivo base de datos SISTGLOB',
+      body: 'Adjunto archivo de base de datos.',
+      isHtml: true,
+    };
+
+    this.emailComposer.open(email).catch((err) => {
+      console.error('Error abriendo email composer:', err);
+    });
   }
 }

@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { EventEmitter, Injectable } from '@angular/core';
 import { SQLiteDBConnection } from '@capacitor-community/sqlite';
 import { environment } from 'src/environments/environment.prod';
 import { HttpClient } from '@angular/common/http';
@@ -17,6 +17,7 @@ import { ApiResponse } from '../interfaces/api-response';
 })
 export class SimtrampeoService {
   private db: SQLiteDBConnection | null = null;
+  capturas$ = new EventEmitter<string>();
 
   constructor(private http: HttpClient) {}
 
@@ -67,6 +68,35 @@ export class SimtrampeoService {
     const res = await this.db?.query(sql, [id, fecha]);
     return res?.values ?? [];
   }
+
+  async getCapturas(): Promise<any[]> {
+    const sql = `SELECT trampas.variedad_id as instalada, simtrampeo.id, simtrampeo.user_id, simtrampeo.fecha, simtrampeo.fechaHora, simtrampeo.fecha_instalacion, simtrampeo.longitud_rev, simtrampeo.latitud_rev, simtrampeo.accuracy, simtrampeo.distancia_qr, simtrampeo.status, simtrampeo.trampa_id, simtrampeo.captura, trampas.name FROM simtrampeo INNER JOIN trampas ON simtrampeo.trampa_id = trampas.id_bit WHERE simtrampeo.status IN (1,2,3) AND trampas.campana_id = 3  ORDER BY datetime(simtrampeo.fechaHora) DESC`;
+    const res = await this.db?.query(sql);
+    return res?.values ?? [];
+  }
+  async getBuscar(fecha: any): Promise<any[]> {
+    const sql = `SELECT simtrampeo.id, simtrampeo.user_id, simtrampeo.fecha, simtrampeo.fechaHora, simtrampeo.longitud_rev, simtrampeo.latitud_rev, simtrampeo.accuracy, simtrampeo.distancia_qr, simtrampeo.status, simtrampeo.trampa_id, simtrampeo.captura, trampas.name FROM simtrampeo INNER JOIN trampas ON simtrampeo.trampa_id = trampas.id_bit WHERE trampas.campana_id = 3 AND simtrampeo.fecha = ? ORDER BY datetime(simtrampeo.fechaHora) DESC`;
+    const res = await this.db?.query(sql, [fecha]);
+    return res?.values ?? [];
+  }
+
+  async getCapturaId(id: number): Promise<any[]> {
+    const sql = `SELECT trampas.name as trampa, simtrampeo.feromona, simtrampeo.id, simtrampeo.siembra_id, simtrampeo.longitud_ins, simtrampeo.latitud_ins, simtrampeo.longitud_rev, simtrampeo.latitud_rev, simtrampeo.accuracy, simtrampeo.fecha_instalacion, simtrampeo.captura, simtrampeo.fechaHora, simtrampeo.fecha,  trampas.latitud, trampas.longitud, trampas.campo FROM trampas INNER JOIN simtrampeo ON simtrampeo.trampa_id = trampas.id_bit WHERE simtrampeo.id = ? LIMIT 1`;
+    const res = await this.db?.query(sql, [id]);
+    return res?.values ?? [];
+  }
+
+  async delete(id: number): Promise<boolean> {
+    const sql = `UPDATE simtrampeo SET status = 5 WHERE id = ?`;
+    const res = await this.db?.run(sql, [id]);
+
+    if (res?.changes?.changes && res.changes.changes > 0) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   async sqliteSequence(): Promise<number> {
     const sql = `SELECT MAX(seq) as seq FROM sqlite_sequence WHERE name='simtrampeo'`;
     const res = await this.db?.query(sql, []);
@@ -86,6 +116,7 @@ export class SimtrampeoService {
 
       for (const captura of capturas) {
         const params: any = {
+          id: captura.id_bit,
           trampa_id: captura.trampa_id,
           fecha: captura.fecha,
           semana: captura.semana,
@@ -104,8 +135,8 @@ export class SimtrampeoService {
           junta_id: captura.junta_id,
           id_bd_cel: captura.id_bd_cel,
           fechaHora_cel: captura.fechaHora,
+          status: captura.status,
           version: captura.version,
-          status: 1,
           tipo: 'Subir datos',
         };
 
@@ -152,8 +183,10 @@ export class SimtrampeoService {
         latitud_rev,
         longitud_rev,
         fecha_instalacion,
-        captura
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        captura,
+        feromona,
+        accion
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     try {
       await this.db?.run(sql, values);
@@ -161,6 +194,8 @@ export class SimtrampeoService {
         this.http.post<ApiResponse>(url, params),
       );
       if (response.status === 'success' || response.status === 'warning') {
+        const updateStatusSql = 'UPDATE simtrampeo SET status = 1 WHERE id = ?';
+        await this.db?.run(updateStatusSql, [data.captura.id]);
         return {
           status: response.status,
           message: response.message ?? 'Captura actualizada correctamente',
@@ -197,6 +232,8 @@ export class SimtrampeoService {
         latitud_ins = ?,
         longitud_ins = ?,
         fecha_instalacion = ?,
+        feromona = ?,
+        accion = ?
         WHERE id = ?`;
 
     try {
@@ -223,8 +260,8 @@ export class SimtrampeoService {
     }
   }
   async update(data: CapturaSimtrampeo): Promise<ApiResponse> {
-    let url
-    if(data.instalacion == 0){
+    let url;
+    if (data.instalacion == 0) {
       url = environment.APIUrl + 'trampeo/captura/simtrampeo';
     } else {
       url = environment.APIUrl + 'trampeo/simtrampeo/update';
@@ -248,7 +285,9 @@ export class SimtrampeoService {
             latitud_rev = ?,
             longitud_rev = ?,
             fecha_instalacion = ?,
-            captura = ?
+            captura = ?,
+            feromona = ?,
+            accion = ?
             WHERE id = ?`;
 
     try {
@@ -302,17 +341,21 @@ export class SimtrampeoService {
         latitud_rev,
         longitud_rev,
         fecha_instalacion,
-        captura
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+        captura,
+        feromona,
+        accion
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
     try {
-      await this.db?.run(sql, values);
+      const result = await this.db?.run(sql, values);
+      const lastId = result?.changes?.lastId;
+
       const response: any = await lastValueFrom(
         this.http.post<ApiResponse>(url, params),
       );
       if (response.status === 'success' || response.status === 'warning') {
         const updateStatusSql = 'UPDATE simtrampeo SET status = 1 WHERE id = ?';
-        await this.db?.run(updateStatusSql, [data.captura.id]);
+        await this.db?.run(updateStatusSql, [lastId]);
         return {
           status: response.status,
           message: response.message ?? 'Captura actualizada correctamente',
@@ -330,6 +373,55 @@ export class SimtrampeoService {
       };
     }
   }
+
+  async reenviar(id: any): Promise<any> {
+    const url = environment.APIUrl + 'trampeo/captura/simtrampeo';
+    try {
+      const sql = 'SELECT * FROM simtrampeo WHERE id = ?';
+      const res = await this.db?.query(sql, [id]);
+
+      if (!res?.values || res.values.length === 0) {
+        throw new Error('No se encontró la captura con el ID proporcionado.');
+      }
+
+      const captura = res.values[0];
+
+      const params = {
+        id: captura.id_bit,
+        trampa_id: captura.trampa_id,
+        fecha: captura.fecha,
+        semana: captura.semana,
+        ano: captura.ano,
+        latitud_ins: captura.latitud_ins,
+        longitud_ins: captura.longitud_ins,
+        latitud_rev: captura.latitud_rev,
+        longitud_rev: captura.longitud_rev,
+        accuracy: captura.accuracy,
+        distancia_qr: captura.distancia_qr,
+        fecha_instalacion: captura.fecha_instalacion,
+        captura: captura.captura,
+        method: 1,
+        user_id: captura.user_id,
+        personal_id: captura.personal_id,
+        junta_id: captura.junta_id,
+        id_bd_cel: captura.id_bd_cel,
+        fechaHora_cel: captura.fechaHora,
+        status: captura.status,
+        version: captura.version,
+        tipo: 'Reenviando datos',
+      };
+
+      const response: any = await lastValueFrom(this.http.post(url, params));
+
+      if (response.status === 'success' || response.status === 'warning') {
+        const updateStatusSql = 'UPDATE simtrampeo SET status = 1 WHERE id = ?';
+        await this.db?.run(updateStatusSql, [captura.id]);
+      }
+
+      return response;
+    } catch (error) {
+      console.error('Error reenviando captura:', error);
+      throw error;
+    }
+  }
 }
-
-

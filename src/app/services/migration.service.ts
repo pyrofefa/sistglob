@@ -36,7 +36,7 @@ export class MigrationService {
   //agregando campo actividad y cambio de feromona
   private async migracionV3(connection: SQLiteDBConnection): Promise<void> {
     const tablas = [
-     'simpicudo', 'simpp'
+     'simpicudo', 'simpp', 'simtrampeo', 'simgbn'
     ];
 
     for (const tabla of tablas) {

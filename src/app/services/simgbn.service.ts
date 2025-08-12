@@ -82,7 +82,7 @@ export class SimgbnService {
   }
 
   async getCapturaId(id: number): Promise<any[]> {
-    const sql = `SELECT fenologias.name as fenologia, trampas.name as trampa, simgbn.siembra_id, simgbn.longitud as y, simgbn.latitud as x, simgbn.accuracy, simgbn.captura, simgbn.longitud, simgbn.fechaHora, simgbn.fecha, simgbn.id, trampas.latitud, trampas.longitud, trampas.campo FROM trampas INNER JOIN simgbn ON simgbn.trampa_id = trampas.id_bit LEFT JOIN fenologias ON simgbn.fenologia = fenologias.id WHERE simgbn.id = ? LIMIT 1`;
+    const sql = `SELECT fenologias.name as fenologia, acciones.name as accion, trampas.name as trampa, simgbn.feromona, simgbn.siembra_id, simgbn.longitud as y, simgbn.latitud as x, simgbn.accuracy, simgbn.captura, simgbn.longitud, simgbn.fechaHora, simgbn.fecha, simgbn.id, trampas.latitud, trampas.longitud, trampas.campo FROM trampas INNER JOIN simgbn ON simgbn.trampa_id = trampas.id_bit LEFT JOIN fenologias ON simgbn.fenologia = fenologias.id LEFT JOIN acciones ON simgbn.accion = acciones.id WHERE simgbn.id = ? AND acciones.campana_id = 2 LIMIT 1`;
     const res = await this.db?.query(sql, [id]);
     return res?.values ?? [];
   }
@@ -109,8 +109,10 @@ export class SimgbnService {
               trampa_id,
               siembra_id,
               fenologia,
-              captura
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+              captura,
+              accion,
+              feromona
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     try {
       const result = await this.db?.run(sql, values);
       const lastId = result?.changes?.lastId;
@@ -162,7 +164,9 @@ export class SimgbnService {
                 trampa_id = ?,
                 siembra_id = ?,
                 fenologia = ?,
-                captura = ?
+                captura = ?,
+                accion = ?,
+                feromona = ?
               WHERE id = ?`;
 
     try {
@@ -220,6 +224,8 @@ export class SimgbnService {
           id_bd_cel: captura.id_bd_cel,
           fechaHora_cel: captura.fechaHora,
           version: captura.version,
+          accion: captura.accion,
+          feromona: captura.feromona,
           status: 1,
           tipo: 'Subir Datos',
         };
@@ -274,6 +280,8 @@ export class SimgbnService {
         id_bd_cel: captura.id_bd_cel,
         fechaHora_cel: captura.fechaHora,
         version: captura.version,
+        accion: captura.accion,
+        feromona: captura.feromona,
         status: 1,
         tipo: 'Reenviando Datos',
       };

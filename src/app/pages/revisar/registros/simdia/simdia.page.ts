@@ -44,7 +44,6 @@ export class SimdiaPage implements OnInit {
     this.route.navigate(['/registro-detalle', item, this.name]);
   }
   actualizar() {
-    this.registros = 0;
     this.ngOnInit();
   }
   async buscar() {

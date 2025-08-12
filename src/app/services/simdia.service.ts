@@ -79,7 +79,7 @@ export class SimdiaService {
     return res?.values ?? [];
   }
   async getBuscar(fecha: any): Promise<any[]> {
-    const sql = `SELECT simdia.id, simdia.user_id, simdia.fecha, simdia.fechaHora, simdia.longitud, simdia.latitud, simdia.accuracy, simdia.distancia_qr, simdia.status, simdia.trampa_id, simdia.captura, simdia.fenologia_id, trampas.name FROM simdia INNER JOIN trampas ON simdia.trampa_id = trampas.id_bit WHERE trampas.campana_id = 8 AND simdia.fecha = ? ORDER BY simdia.id DESC`;
+    const sql = `SELECT simdia.id, simdia.user_id, simdia.fecha, simdia.fechaHora, simdia.longitud, simdia.latitud, simdia.accuracy, simdia.distancia_qr, simdia.status, simdia.trampa_id, simdia.captura, simdia.fenologia_id, simdia.instalada, trampas.name FROM simdia INNER JOIN trampas ON simdia.trampa_id = trampas.id_bit WHERE simdia.fecha = ? ORDER BY simdia.id DESC`;
     const res = await this.db?.query(sql, [fecha]);
     return res?.values ?? [];
   }

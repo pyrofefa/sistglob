@@ -18,6 +18,11 @@
         <ion-label>Latitud: {{ captura.latitud }}</ion-label><br>
         <ion-label>Longitud: {{ captura.longitud }}</ion-label><br>
         <ion-label>Fenologia: {{ captura.fenologia }}</ion-label><br>
+        <ion-label>Actividad: {{ captura.accion }}</ion-label><br>
+        <ion-label>Cambio de feromona:
+          <ion-icon *ngIf='captura.feromona == 1' name="checkmark-circle"></ion-icon>
+          <ion-icon *ngIf='captura.feromona == 0' name="close-circle"></ion-icon>
+        </ion-label><br>
     </ion-card-content>
   </ion-card>
   <ion-button expand="block" color='success' type="button" (click)='reenviar(captura.id)'>Reenviar</ion-button>

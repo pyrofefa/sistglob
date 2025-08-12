@@ -15,6 +15,7 @@ import { SimdiaComponent } from 'src/app/components/detalles/simdia/simdia.compo
 import { FenologiaBrotesPipe } from 'src/app/pipes/fenologia-brote.pipe';
 import { SimmoscasComponent } from 'src/app/components/detalles/simmoscas/simmoscas.component';
 import { SimtoComponent } from 'src/app/components/detalles/simto/simto.component';
+import { SimtrampeoComponent } from 'src/app/components/detalles/simtrampeo/simtrampeo.component';
 
 @NgModule({
   imports: [
@@ -32,7 +33,8 @@ import { SimtoComponent } from 'src/app/components/detalles/simto/simto.componen
     SimgbnComponent,
     SimdiaComponent,
     SimmoscasComponent,
-    SimtoComponent
+    SimtoComponent,
+    SimtrampeoComponent
   ],
 })
 export class RegistroDetallePageModule {}

@@ -189,7 +189,7 @@ export class SimmoscasComponent implements OnInit {
           this.extras.loading.dismiss();
           this.back.navigate(['/ubicaciones/1']);
           this.extras.presentToast(
-            'No se encontró la ubicación intente nuevamente.',
+            '❌  No se encontró la ubicación intente nuevamente.',
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
@@ -264,38 +264,39 @@ export class SimmoscasComponent implements OnInit {
       });
   }
   async save() {
-    if (
-      !this.presicion ||
-      this.presicion > 16 ||
-      !this.latitud ||
-      !this.longitud
-    ) {
+    if (this.presicion == null || this.presicion > 16) {
+      setTimeout(() => {
+        this.extras.loading.dismiss();
+        this.extras.presentToast(
+          'La precisión debe de ser menor a 16 para poder guardar el registro',
+        );
+      }, 1500);
+    } else if (this.latitud == null || this.longitud == null) {
       setTimeout(() => {
         this.extras.loading.dismiss();
         this.extras.presentToast('No se encontró una posición válida');
       }, 1500);
-      return;
-    }
-
-    if (this.status === 2) {
-      const alert = await this.alertController.create({
-        header: 'Ya has hecho este registro anteriormente',
-        message: '¿Estás seguro que deseas sobrescribir?',
-        buttons: [
-          { text: 'No', role: 'cancel', cssClass: 'secondary' },
-          {
-            text: 'Sí',
-            handler: async () => {
-              await alert.dismiss();
-              this.guardarRegistro(true);
-            },
-          },
-        ],
-      });
-
-      await alert.present();
     } else {
-      this.guardarRegistro(false);
+      if (this.status === 2) {
+        const alert = await this.alertController.create({
+          header: 'Ya has hecho este registro anteriormente',
+          message: '¿Estás seguro que deseas sobrescribir?',
+          buttons: [
+            { text: 'No', role: 'cancel', cssClass: 'secondary' },
+            {
+              text: 'Sí',
+              handler: async () => {
+                await alert.dismiss();
+                this.guardarRegistro(true);
+              },
+            },
+          ],
+        });
+
+        await alert.present();
+      } else {
+        this.guardarRegistro(false);
+      }
     }
   }
 

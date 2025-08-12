@@ -21,11 +21,17 @@ import { SimtoService } from './simto.service';
 import { SimtoDetalleService } from './simto-detalle.service';
 import { SimpicudoService } from './simpicudo.service';
 import { MigrationService } from './migration.service';
+import { Capacitor, registerPlugin } from '@capacitor/core';
+import { DatabaseCopierPlugin } from 'src/app/interfaces/database-copier-plugin';
+
+// Plugin personalizado para copiar base de datos
+const DatabaseCopier = registerPlugin<DatabaseCopierPlugin>('CopyFileSiafeson');
+
+const MIGRATION_FLAG_KEY = 'db-migrated-v1';
 
 @Injectable({ providedIn: 'root' })
 export class DatabaseInitService {
   private sqlite = new SQLiteConnection(CapacitorSQLite);
-
   constructor(
     private tabla: TablasService,
     private info: InfoService,
@@ -50,9 +56,13 @@ export class DatabaseInitService {
 
   async initializeDatabase() {
     try {
+      // ⚠️ Intentar migrar si nunca se hizo
+      await this.tryMigrateOldDatabase();
+
       const dbConfig = environment.database;
-      const connection = await this.sqlite.createConnection(dbConfig.name, false, 'no-encryption', 1, false);
-      await connection.open();
+
+       const connection = await this.sqlite.createConnection(dbConfig.name, false, 'no-encryption', 1, false);
+       await connection.open();
 
       const serviciosConDB = [
         this.tabla, this.info, this.trampas, this.fenologias, this.brotes, this.observaciones,
@@ -101,6 +111,32 @@ export class DatabaseInitService {
       } catch (err) {
         console.error(`❌ Error creando tabla "${tarea.nombre}":`, err);
       }
+    }
+  }
+
+  // ✅ Migrar la base de datos de cordova a capacitor
+  private async tryMigrateOldDatabase() {
+    const { value } = await Preferences.get({ key: MIGRATION_FLAG_KEY });
+
+    if (value === 'true') {
+      console.log('➡️ Base de datos ya fue migrada anteriormente');
+      return;
+    }
+
+    if (Capacitor.getPlatform() !== 'android') {
+      console.warn('⚠️ Migración solo soportada en Android');
+      return;
+    }
+
+    try {
+      const dbName = environment.database.name;
+      console.log('🔁 Intentando migrar base de datos antigua Cordova:');
+      await DatabaseCopier.importDatabaseFromExternal({ dbName });
+
+      await Preferences.set({ key: MIGRATION_FLAG_KEY, value: 'true' });
+      console.log('✅ Migración de base de datos completada');
+    } catch (error) {
+      console.log('❌ Error durante la migración de base de datos:'+ error);
     }
   }
 }

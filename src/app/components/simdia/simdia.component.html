@@ -135,7 +135,7 @@
       <ion-toggle color="{{ name }}" name='non' [(ngModel)]='captura.non'></ion-toggle>
     </ion-col>
     <ion-col>
-      <ion-select name='nof' class="rounded" [(ngModel)]='captura.nof' [compareWith]="compareWithN"
+      <ion-select name='nof' [(ngModel)]='captura.nof' [compareWith]="compareWithN"
         placeholder="Seleccione" interface="action-sheet" required>
         <ion-select-option *ngFor="let brote of brotes" [value]='brote.id'>{{ brote.name  }}</ion-select-option>
       </ion-select>
@@ -171,7 +171,7 @@
       <ion-toggle color="{{ name }}" name='sun' [(ngModel)]='captura.sun'></ion-toggle>
     </ion-col>
     <ion-col>
-      <ion-select name='suf' class="rounded" [(ngModel)]='captura.suf' [compareWith]="compareWithS"
+      <ion-select name='suf' class="select-center" [(ngModel)]='captura.suf' [compareWith]="compareWithS"
         placeholder="Seleccione" interface="action-sheet" required>
         <ion-select-option *ngFor="let brote of brotes" [value]='brote.id'>{{ brote.name }}</ion-select-option>
       </ion-select>
@@ -205,6 +205,6 @@
   <p class="ion-text-center enviado" *ngIf='status == 1'>--- Ya has enviado este registro ---</p>
   <p class="ion-text-center pendiente" *ngIf='status == 2'>--- Tienes pendiente de enviar este registro ---</p>
   <ion-button color="{{ name }}" expand="block"
-    [disabled]='formulario.invalid || status == 1 || latitud == null || longitud == null || presicion == null'
+    [disabled]='formulario.invalid || bloquearCaptura || status == 1 || latitud == null || longitud == null || presicion == null'
     type="submit">Guardar</ion-button>
 </form>

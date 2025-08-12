@@ -8,10 +8,10 @@ import { SimtoService } from 'src/app/services/simto.service';
   selector: 'app-simto',
   templateUrl: './simto.component.html',
   styleUrls: ['./simto.component.scss'],
-  standalone: false
+  standalone: false,
 })
-export class SimtoComponent  implements OnInit {
-id: any = null;
+export class SimtoComponent implements OnInit {
+  id: any = null;
   devid: any;
   capturas: any = [];
 
@@ -24,13 +24,12 @@ id: any = null;
   ) {}
 
   ngOnInit() {
-    alert("Hola mundo")
     this.id = this.route.paramMap.subscribe((id) => {
       this.devid = id.get('id');
       this.captura
         .getCapturaId(this.devid)
         .then((res) => {
-          console.log(res)
+          console.log(res);
           this.capturas = res;
         })
         .catch((error) => {
@@ -45,29 +44,29 @@ id: any = null;
     this.captura
       .reenviar(id)
       .then((res) => {
-        console.log(res)
         let result: any = res;
         setTimeout(() => {
           this.extras.loading.dismiss();
           if (result['status'] == 'success') {
             this.captura.capturas$.emit('Captura actualizadas correctamente');
-            this.extras.presentToast(result['message']);
+            this.extras.presentToast('✅ ' + result['message']);
           } else if (result['status'] == 'warning') {
             this.captura.capturas$.emit(
               'Captura el registro ya existe en el servidor',
             );
-            this.extras.presentToast(result['message']);
+            this.extras.presentToast('⚠️ ' + result['message']);
           } else {
-            this.extras.presentToast('Problemas de conexión con el servidor ');
+            this.extras.presentToast(
+              '❌ Problemas de conexión con el servidor ',
+            );
           }
         }, 1500);
       })
       .catch((error) => {
         setTimeout(() => {
           this.extras.loading.dismiss();
-          this.extras.presentToast('Problemas de conexión con el servidor ');
+          this.extras.presentToast('❌ Problemas de conexión con el servidor ');
         }, 1500);
       });
   }
-
 }

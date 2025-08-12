@@ -7,7 +7,7 @@
           <ion-icon name="leaf-outline" class="icon"></ion-icon>
         </ion-col>
         <ion-col class="text-container">
-          <strong>Campo:</strong> {{ c.campo }}
+          <strong>Productor: </strong> {{ c.productor }}
         </ion-col>
       </ion-row>
     </ion-col>
@@ -84,22 +84,21 @@
   <ion-item>
     <ion-label>Actividad</ion-label>
     <ion-select name='accion' slot="end" placeholder="Seleccione" [(ngModel)]='captura.accion'
-      [compareWith]="compareWithAccion" interface="action-sheet" required>
+      [compareWith]="compareWithAccion" interface="action-sheet" (ngModelChange)='seleccionar()' required>
       <ion-select-option *ngFor="let accion of acciones" [value]='accion.id'>{{ accion.name }}</ion-select-option>
     </ion-select>
   </ion-item>
   <ion-item>
     <ion-label>Observaciones</ion-label>
     <ion-select name='observacion' slot="end" [(ngModel)]='captura.observacion' [compareWith]="compareWithObservacion"
-      placeholder="Seleccione" interface="action-sheet" [disabled]='captura.revisada != false'
-      [required]='captura.revisada == false' (ngModelChange)='seleccionar()'>
+      placeholder="Seleccione" interface="action-sheet" [disabled]='captura.accion != 3' [required]="captura.accion == 3">
       <ion-select-option *ngFor="let observacion of observaciones" [value]='observacion.id'>{{ observacion.name
         }}</ion-select-option>
     </ion-select>
   </ion-item>
   <ion-item>
-    <ion-input label="Capturas" name='captura' [disabled]="captura.revisada == false" type="number" min="0"
-      pattern="^[0-9]{1,3}$" [(ngModel)]="captura.captura" [required]='captura.revisada != false'></ion-input>
+    <ion-input label="Capturas" name='captura' type="number" min="0"
+      pattern="^[0-9]{1,3}$" [disabled]='captura.accion == 3' [(ngModel)]="captura.captura" [required]='captura.accion != 3'></ion-input>
   </ion-item>
   <ion-item>
     <ion-label>Fenología</ion-label>
@@ -117,6 +116,7 @@
     <ion-label>Cambio de feromona</ion-label>
     <ion-toggle color="{{ name }}" slot="end" name='feromona' [(ngModel)]='captura.feromona'></ion-toggle>
   </ion-item>
+    <p class="ion-text-center error" *ngIf='captura.accion == null'>--- Tienes que seleccionar actividad ---</p>
   <p class="ion-text-center error" *ngIf='captura.fenologia == null'>--- Tienes que seleccionar fenología ---</p>
   <p class="ion-text-center enviado" *ngIf='status == 1'>--- Ya has enviado este registro ---</p>
   <p class="ion-text-center pendiente" *ngIf='status == 2'>--- Tienes pendiente de enviar este registro ---</p>

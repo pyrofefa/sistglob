@@ -8,7 +8,9 @@ export function buildCapturaSimpp(
     captura: number;
     fenologia: number;
     atrayente: number;
-    feromona: number,
+    feromona: number;
+    instalada: number;
+    revisada: number;
     id: number;
   },
   junta_id: string,
@@ -38,6 +40,8 @@ export function buildCapturaSimpp(
       fenologia: captura.fenologia,
       atrayente: captura.atrayente ?? 0,
       feromona: captura.feromona ?? 0,
+      instalada: captura.instalada,
+      revisada: captura.revisada,
       id: captura.id
     },
     longitud,

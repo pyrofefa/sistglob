@@ -10,6 +10,8 @@ export interface CapturaSimtrampeo {
     latitud_rev: number;
     longitud_rev: number;
     fecha_instalacion: string;
+    feromona: number;
+    accion:number;
     id: number;
   },
   presicion: number;
@@ -58,6 +60,8 @@ export function buildInsertInstallPayloads(data: CapturaSimtrampeo): {
     distancia_qr,
     fecha_instalacion: captura.fecha_instalacion,
     captura: captura.captura,
+    feromona: captura.feromona ? 1 : 0,
+    accion: captura.accion,
     method: 1,
     user_id,
     personal_id,
@@ -90,7 +94,9 @@ export function buildInsertInstallPayloads(data: CapturaSimtrampeo): {
     captura.latitud_rev,
     captura.longitud_rev,
     captura.fecha_instalacion,
-    captura.captura
+    captura.captura,
+    captura.feromona,
+    captura.accion
   ];
 
   return { params, values };
@@ -129,6 +135,8 @@ export function buildUpdatePayloadsInstalacion(data: CapturaSimtrampeo): {
     distancia_qr,
     fecha_instalacion: captura.fecha_instalacion,
     captura: captura.captura,
+    feromona: captura.feromona ? 1 : 0,
+    accion: captura.accion,
     method: 1,
     user_id,
     personal_id,
@@ -156,6 +164,8 @@ export function buildUpdatePayloadsInstalacion(data: CapturaSimtrampeo): {
     captura.latitud_ins,
     captura.longitud_ins,
     captura.fecha_instalacion,
+    captura.feromona,
+    captura.accion,
     captura.id
   ];
 
@@ -195,6 +205,8 @@ export function buildUpdatePayloads(data: CapturaSimtrampeo): {
     distancia_qr,
     fecha_instalacion: captura.fecha_instalacion,
     captura: captura.captura,
+    feromona: captura.feromona ? 1 : 0,
+    accion: captura.accion,
     method: 1,
     user_id,
     personal_id,
@@ -215,6 +227,8 @@ export function buildUpdatePayloads(data: CapturaSimtrampeo): {
     fechaHora,
     presicion,
     distancia_qr,
+    id_bd_cel,
+    siembra_id,
     2, // status local
     ano,
     semana,
@@ -223,6 +237,8 @@ export function buildUpdatePayloads(data: CapturaSimtrampeo): {
     captura.longitud_rev,
     captura.fecha_instalacion,
     captura.captura,
+    captura.feromona,
+    captura.accion,
     captura.id
   ];
 
@@ -262,6 +278,8 @@ export function buildInserPayloads(data: CapturaSimtrampeo): {
     distancia_qr,
     fecha_instalacion: captura.fecha_instalacion,
     captura: captura.captura,
+    feromona: captura.feromona ? 1 : 0,
+    accion: captura.accion,
     method: 1,
     user_id,
     personal_id,
@@ -294,7 +312,9 @@ export function buildInserPayloads(data: CapturaSimtrampeo): {
     captura.latitud_rev,
     captura.longitud_rev,
     captura.fecha_instalacion,
-    captura.captura
+    captura.captura,
+    captura.feromona,
+    captura.accion
   ];
 
   return { params, values };

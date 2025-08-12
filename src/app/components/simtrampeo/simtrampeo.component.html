@@ -80,46 +80,43 @@
   </ion-card-content>
 </ion-card>
 <hr>
-STATUS: {{ status }}
 <form #formulario="ngForm" (ngSubmit)="save(instalacion)">
   <div *ngIf="instalacion == 1">
     <!-- Mostrar mensaje si status es 4, 2 o 1 -->
-    <div *ngIf="status == 4 || status == 2 || status == 1">
+    <div *ngIf="status == 4 || status == 2 || status == 1 || status == 5">
       <p class="ion-text-center">Después de la instalación tendrás 10 días para poder visualizar la trampa</p>
-      <ion-button
-        color="{{ name }}"
-        [hidden]="status == 3"
-        [disabled]="latitud == null || longitud == null || presicion == null"
-        expand="block"
-        type="submit">
+      <ion-button color="{{ name }}" [hidden]="status == 3"
+        [disabled]="latitud == null || longitud == null || presicion == null" expand="block" type="submit">
         Guardar instalación
       </ion-button>
     </div>
     <!-- Permitir captura si status es 3 -->
     <div *ngIf="status == 3">
-      <p class="ion-text-center">La instalación de la trampa fue {{ captura.fecha_instalacion | date: 'mediumDate' }}</p>
+      <p class="ion-text-center">La instalación de la trampa fue {{ captura.fecha_instalacion | date: 'mediumDate' }}
+      </p>
       <ion-item>
-        <ion-input
-          label="{{ titulo }}:"
-          name="captura"
-          type="number"
-          min="0"
-          pattern="^[0-9]{1,3}$"
-          [(ngModel)]="captura.captura"
-          required>
+        <ion-label>Actividad</ion-label>
+        <ion-select name='accion' slot="end" placeholder="Seleccione" [(ngModel)]='captura.accion'
+          [compareWith]="compareWithAccion" interface="action-sheet" (ngModelChange)='seleccionar()' required>
+          <ion-select-option *ngFor="let accion of acciones" [value]='accion.id'>{{ accion.name }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+      <ion-item>
+        <ion-input label="{{ titulo }}:" name="captura" type="number" min="0" pattern="^[0-9]{1,3}$"
+          [disabled]='captura.accion == 3' [(ngModel)]="captura.captura" [required]='captura.accion != 3'>
         </ion-input>
       </ion-item>
-
+      <ion-item>
+        <ion-label>Cambio de feromona</ion-label>
+        <ion-toggle color="{{ name }}" slot="end" name='feromona' [(ngModel)]='captura.feromona'></ion-toggle>
+      </ion-item>
       <br>
       <p class="ion-text-center error" *ngIf="captura.captura == null">
         --- Tienes que seleccionar {{ titulo }} ---
       </p>
 
-      <ion-button
-        color="{{ name }}"
-        expand="block"
-        [disabled]="latitud == null || longitud == null || presicion == null"
-        type="submit">
+      <ion-button color="{{ name }}" expand="block"
+        [disabled]="formulario.invalid || latitud == null || longitud == null || presicion == null" type="submit">
         Guardar
       </ion-button>
     </div>
@@ -127,17 +124,21 @@ STATUS: {{ status }}
 
   <div *ngIf="instalacion == 0">
     <ion-item>
-      <ion-input
-        label="{{ titulo }}:"
-        name="captura"
-        type="number"
-        min="0"
-        pattern="^[0-9]{1,3}$"
-        [(ngModel)]="captura.captura"
-        required>
+      <ion-label>Actividad</ion-label>
+      <ion-select name='accion' slot="end" placeholder="Seleccione" [(ngModel)]='captura.accion'
+        [compareWith]="compareWithAccion" interface="action-sheet" (ngModelChange)='seleccionar()' required>
+        <ion-select-option *ngFor="let accion of acciones" [value]='accion.id'>{{ accion.name }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-input label="{{ titulo }}:" name="captura" type="number" min="0" pattern="^[0-9]{1,3}$"
+        [disabled]='captura.accion == 3' [(ngModel)]="captura.captura" [required]='captura.accion != 3'>
       </ion-input>
     </ion-item>
-
+    <ion-item>
+      <ion-label>Cambio de feromona</ion-label>
+      <ion-toggle color="{{ name }}" slot="end" name='feromona' [(ngModel)]='captura.feromona'></ion-toggle>
+    </ion-item>
     <br>
     <p class="ion-text-center enviado" *ngIf="status == 1">
       --- Ya has enviado este registro ---
@@ -149,13 +150,10 @@ STATUS: {{ status }}
       --- Tienes que seleccionar {{ titulo }} ---
     </p>
 
-    <ion-button
-      color="{{ name }}"
-      expand="block"
+    <ion-button color="{{ name }}" expand="block"
       [disabled]="formulario.invalid || status == 1 || latitud == null || longitud == null || presicion == null"
       type="submit">
       Guardar
     </ion-button>
   </div>
 </form>
-

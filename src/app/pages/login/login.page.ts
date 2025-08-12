@@ -38,22 +38,22 @@ export class LoginPage implements OnInit {
       if (result.status === 0) {
         setTimeout(() => {
           this.extras.loading.dismiss();
-          this.extras.presentToast('Ocurrió un error al iniciar sesión, por favor intente más tarde.');
+          this.extras.presentToast('❌ Ocurrió un error al iniciar sesión, por favor intente más tarde.');
         }, 1500);
       } else if (result.success === false) {
         setTimeout(() => {
           this.extras.loading.dismiss();
-          this.extras.presentToast(result.msj);
+          this.extras.presentToast('❌ '+result.msj);
         }, 1500);
       } else {
         setTimeout(() => {
           this.extras.loading.dismiss();
-          this.extras.presentToast('Por favor actualiza tablas y ubicaciones antes de iniciar.');
+          this.extras.presentToast('⚠️ Por favor actualiza tablas y ubicaciones antes de iniciar.');
         }, 1500);
       }
     } catch (error) {
       console.error('Error', error);
-      this.extras.presentToast('Ocurrió un error al iniciar sesión, por favor intente más tarde.');
+      this.extras.presentToast('❌ Ocurrió un error al iniciar sesión, por favor intente más tarde.');
     }
   }
 

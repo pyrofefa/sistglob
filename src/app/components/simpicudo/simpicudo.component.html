@@ -32,8 +32,8 @@
           <div *ngIf="latitud != null && longitud != null">
             <div *ngIf="c | calculateDistance : latitud : longitud : c.latitud : c.longitud as result">
               <strong>Posición:</strong>
-                ({{ c.latitud | number:"1.0-5":"en-US" }},
-                {{ c.longitud | number:"1.0-5":"en-US" }}) - {{ result.distancia }} M - {{ result.orientacion }}
+              ({{ c.latitud | number:"1.0-5":"en-US" }},
+              {{ c.longitud | number:"1.0-5":"en-US" }}) - {{ result.distancia }} M - {{ result.orientacion }}
             </div>
           </div>
         </ion-col>
@@ -82,7 +82,8 @@
 <form #formulario="ngForm" (ngSubmit)="save()">
   <ion-item>
     <ion-label>Actividad</ion-label>
-    <ion-select name='accion' slot="end" placeholder="Seleccione" [(ngModel)]='captura.accion' [compareWith]="compareWithAccion" interface="action-sheet" required>
+    <ion-select name='accion' slot="end" placeholder="Seleccione" [(ngModel)]='captura.accion'
+      [compareWith]="compareWithAccion" interface="action-sheet" (ngModelChange)='seleccionar()' required>
       <ion-select-option *ngFor="let accion of acciones" [value]='accion.id'>{{ accion.name }}</ion-select-option>
     </ion-select>
   </ion-item>
@@ -92,19 +93,25 @@
   </ion-item>
   <ion-item>
     <ion-label>Fenología</ion-label>
-    <ion-select name='fenologia' slot="end" placeholder="Seleccione" [(ngModel)]='captura.fenologia' [compareWith]="compareWith" interface="action-sheet" required>
-      <ion-select-option *ngFor="let fenologia of fenologias" [value]='fenologia.id'>{{ fenologia.name }}</ion-select-option>
+    <ion-select name='fenologia' slot="end" placeholder="Seleccione" [(ngModel)]='captura.fenologia'
+      [compareWith]="compareWith" interface="action-sheet" required>
+      <ion-select-option *ngFor="let fenologia of fenologias" [value]='fenologia.id'>{{ fenologia.name
+        }}</ion-select-option>
     </ion-select>
   </ion-item>
   <ion-item>
-    <ion-input label="Adultos encontrados" name='captura' type="number" min="0" pattern="^[0-9]{1,4}$" [(ngModel)]="captura.captura" required></ion-input>
+    <ion-input label="Adultos encontrados" name='captura' type="number" min="0" pattern="^[0-9]{1,4}$"
+      [disabled]='captura.accion == 3' [(ngModel)]="captura.captura" [required]='captura.accion != 3'></ion-input>
   </ion-item>
-  <p class="ion-text-center error" *ngIf='captura.accion == null' >--- Tienes que seleccionar actividad ---</p>
-  <p class="ion-text-center error" *ngIf='captura.fenologia == null' >--- Tienes que seleccionar fenología ---</p>
-  <p class="ion-text-center error" *ngIf='captura.captura == null' >--- Tienes que seleccionar captura ---</p>
-  <p class="ion-text-center error" *ngIf='captura.infestacion == null' >--- Tienes que seleccionar porcentaje de infestación ---</p>
+  <p class="ion-text-center error" *ngIf='captura.accion == null'>--- Tienes que seleccionar actividad ---</p>
+  <p class="ion-text-center error" *ngIf='captura.fenologia == null'>--- Tienes que seleccionar fenología ---</p>
+  <p class="ion-text-center error" *ngIf='captura.captura == null'>--- Tienes que seleccionar captura ---</p>
+  <p class="ion-text-center error" *ngIf='captura.infestacion == null'>--- Tienes que seleccionar porcentaje de
+    infestación ---</p>
 
-  <p class="ion-text-center enviado" *ngIf='status == 1' >--- Ya has enviado este registro ---</p>
-  <p class="ion-text-center pendiente" *ngIf='status == 2' >--- Tienes pendiente de enviar este registro  ---</p>
-  <ion-button expand="block" color="{{ name }}" [disabled]='formulario.invalid || status == 1 || latitud == null || longitud == null || presicion == null' type="submit">Guardar</ion-button>
+  <p class="ion-text-center enviado" *ngIf='status == 1'>--- Ya has enviado este registro ---</p>
+  <p class="ion-text-center pendiente" *ngIf='status == 2'>--- Tienes pendiente de enviar este registro ---</p>
+  <ion-button expand="block" color="{{ name }}"
+    [disabled]='formulario.invalid || status == 1 || latitud == null || longitud == null || presicion == null'
+    type="submit">Guardar</ion-button>
 </form>

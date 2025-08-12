@@ -3,6 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController } from '@ionic/angular';
 import { AssetsService } from 'src/app/services/assests.service';
 import { SimdiaService } from 'src/app/services/simdia.service';
+import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
 
 @Component({
   selector: 'app-simdia',
@@ -32,8 +33,9 @@ id: any = null;
           this.capturas = res;
         })
         .catch((error) => {
-          console.log(error);
-          alert(error);
+          FirebaseCrashlytics.recordException({
+            message: 'error en detalle simdia : ' + error,
+          });
         });
     });
   }
@@ -48,22 +50,25 @@ id: any = null;
           this.extras.loading.dismiss();
           if (result['status'] == 'success') {
             this.captura.capturas$.emit('Captura actualizadas correctamente');
-            this.extras.presentToast(result['message']);
+            this.extras.presentToast('✅ '+result['message']);
           } else if (result['status'] == 'warning') {
             this.captura.capturas$.emit(
               'Captura el registro ya existe en el servidor',
             );
-            this.extras.presentToast(result['message']);
+            this.extras.presentToast('⚠️ '+result['message']);
           } else {
-            this.extras.presentToast('Problemas de conexión con el servidor ');
+            this.extras.presentToast('❌ Problemas de conexión con el servidor ');
           }
         }, 1500);
       })
       .catch((error) => {
         setTimeout(() => {
           this.extras.loading.dismiss();
-          this.extras.presentToast('Problemas de conexión con el servidor ');
+          this.extras.presentToast('❌ Problemas de conexión con el servidor ');
         }, 1500);
+         FirebaseCrashlytics.recordException({
+            message: 'Problemas de conexión con el servidor : ' + error,
+          });
       });
   }
 }

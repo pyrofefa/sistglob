@@ -12,6 +12,7 @@ import { registerPlugin } from '@capacitor/core';
 import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
 import { CalculateDistancePipe } from 'src/app/pipes/calculate-distance.pipe';
 import { buildCapturaSimgbn } from 'src/app/helpers/buildCapturaSimgbn';
+import { AccionesService } from 'src/app/services/acciones.service';
 
 const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
 
@@ -29,7 +30,7 @@ export class SimgbnComponent implements OnInit {
   /**Dias */
   fecha = moment().format('YYYY-MM-DD');
   fechaHora = moment().format('YYYY-MM-DD H:mm:ss');
-  fechaHoraSatelite:any;
+  fechaHoraSatelite: any;
   ano = moment().format('YYYY');
   semana = moment(this.fecha).week();
   today = Date.now();
@@ -45,8 +46,10 @@ export class SimgbnComponent implements OnInit {
     captura: 0,
     fenologia: null,
     trampa_id: null,
+    accion: 1,
   };
   status: any;
+  acciones: any;
 
   fenologias: any;
   latitud_campo: number = 0;
@@ -61,6 +64,7 @@ export class SimgbnComponent implements OnInit {
   junta_id: any;
 
   compareWith: any;
+  compareWithAccion: any;
   interval: any;
   version: any;
 
@@ -73,6 +77,7 @@ export class SimgbnComponent implements OnInit {
     public extras: AssetsService,
     public trampa: TrampasService,
     public fenologia: FenologiasService,
+    public accion: AccionesService,
     public capturas: SimgbnService,
     private zone: NgZone,
     private distance: CalculateDistancePipe,
@@ -171,7 +176,7 @@ export class SimgbnComponent implements OnInit {
           this.extras.loading.dismiss();
           this.back.navigate(['/ubicaciones/1']);
           this.extras.presentToast(
-            'No se encontró la ubicación intente nuevamente.',
+            '❌  No se encontró la ubicación intente nuevamente.',
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
@@ -187,10 +192,11 @@ export class SimgbnComponent implements OnInit {
           this.campo = res;
           for (let result of this.campo) {
             this.siembra_id = result.id_sicafi;
-            this.latitud_campo = result.latitud
-            this.longitud_campo = result.longitud
+            this.latitud_campo = result.latitud;
+            this.longitud_campo = result.longitud;
           }
           this.getFenologias();
+          this.getAcciones();
           this.idBdCel();
         }
       })
@@ -216,99 +222,113 @@ export class SimgbnComponent implements OnInit {
         alert(error);
       });
   }
+  getAcciones() {
+    this.accion
+      .getAcciones(this.campana)
+      .then((res) => {
+        this.acciones = res;
+        this.compareWithAccion = this.compareWithFn;
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
+  seleccionar() {
+    if (this.captura.accion == 3) {
+      this.captura.captura = 0;
+    }
+  }
   async save() {
-    if (
-      !this.presicion ||
-      this.presicion > 16 ||
-      !this.latitud ||
-      !this.longitud
-    ) {
+    if (this.presicion == null || this.presicion > 16) {
+      setTimeout(() => {
+        this.extras.loading.dismiss();
+        this.extras.presentToast(
+          'La precisión debe de ser menor a 16 para poder guardar el registro',
+        );
+      }, 1500);
+    } else if (this.latitud == null || this.longitud == null) {
       setTimeout(() => {
         this.extras.loading.dismiss();
         this.extras.presentToast('No se encontró una posición válida');
       }, 1500);
-      return;
-    }
-
-    if (this.status === 2) {
-      const alert = await this.alertController.create({
-        header: 'Ya has hecho este registro anteriormente',
-        message: '¿Estás seguro que deseas sobrescribir?',
-        buttons: [
-          { text: 'No', role: 'cancel', cssClass: 'secondary' },
-          {
-            text: 'Sí',
-            handler: async () => {
-              await alert.dismiss();
-              this.guardarRegistro(true);
-            },
-          },
-        ],
-      });
-
-      await alert.present();
     } else {
-      this.guardarRegistro(false);
+      if (this.status === 2) {
+        const alert = await this.alertController.create({
+          header: 'Ya has hecho este registro anteriormente',
+          message: '¿Estás seguro que deseas sobrescribir?',
+          buttons: [
+            { text: 'No', role: 'cancel', cssClass: 'secondary' },
+            {
+              text: 'Sí',
+              handler: async () => {
+                await alert.dismiss();
+                this.guardarRegistro(true);
+              },
+            },
+          ],
+        });
+
+        await alert.present();
+      } else {
+        this.guardarRegistro(false);
+      }
     }
   }
 
   async guardarRegistro(isUpdate: boolean) {
-      this.extras.cargandoMessage('Guardando');
+    this.extras.cargandoMessage('Guardando');
 
-      const result = this.distance.transform(
-        null,
-        this.latitud ?? 0.0,
+    const result = this.distance.transform(
+      null,
+      this.latitud ?? 0.0,
+      this.longitud ?? 0.0,
+      this.latitud_campo,
+      this.longitud_campo,
+    );
+    this.distancia_qr = result.distancia;
+    this.orientacion = result.orientacion;
+
+    try {
+      const capturaData = buildCapturaSimgbn(
+        this.captura,
+        this.junta_id,
+        this.personal_id,
+        this.user_id,
         this.longitud ?? 0.0,
-        this.latitud_campo,
-        this.longitud_campo,
+        this.latitud ?? 0.0,
+        this.presicion ?? 0.0,
+        this.fecha,
+        this.fechaHoraSatelite,
+        this.ano,
+        this.semana,
+        this.distancia_qr,
+        this.id_bd_cel,
+        this.version,
+        this.siembra_id,
       );
-      this.distancia_qr = result.distancia;
-      this.orientacion = result.orientacion;
 
-      try {
-        const capturaData = buildCapturaSimgbn(
-          this.captura,
-          this.junta_id,
-          this.personal_id,
-          this.user_id,
-          this.longitud ?? 0.0,
-          this.latitud ?? 0.0,
-          this.presicion ?? 0.0,
-          this.fecha,
-          this.fechaHoraSatelite,
-          this.ano,
-          this.semana,
-          this.distancia_qr,
-          this.id_bd_cel,
-          this.version,
-          this.siembra_id,
-        );
+      const result = isUpdate
+        ? await this.capturas.update(capturaData)
+        : await this.capturas.insert(capturaData);
 
-        const result = isUpdate
-          ? await this.capturas.update(capturaData)
-          : await this.capturas.insert(capturaData);
-
-        let mensaje = '⚠️ Registro guardado localmente';
-        if (result && typeof result === 'object' && result.status === 'success') {
-          mensaje = '✅ Registro guardado localmente y en línea';
-        }
-        else if (result.status === 'warning') {
-          mensaje = '⚠️ '+ result.message +'. Registro guardado localmente';
-        } else if (result.status === 'error') {
-          mensaje = '⚠️ Registro guardado localmente';
-        }
-        setTimeout(() => {
-          this.extras.loading.dismiss();
-          this.extras.presentToast(mensaje);
-          this.back.navigate(['/ubicaciones', this.campana, this.name]);
-        }, 500);
-      } catch (error) {
-        console.error('Error en guardarRegistro:', error);
-        this.extras.presentToast('❌ Error guardando el registro');
-      } finally {
-        this.extras.loading.dismiss();
+      let mensaje = '⚠️ Registro guardado localmente';
+      if (result && typeof result === 'object' && result.status === 'success') {
+        mensaje = '✅ Registro guardado localmente y en línea';
+      } else if (result.status === 'warning') {
+        mensaje = '⚠️ ' + result.message + '. Registro guardado localmente';
+      } else if (result.status === 'error') {
+        mensaje = '⚠️ Registro guardado localmente';
       }
+      setTimeout(() => {
+        this.extras.loading.dismiss();
+        this.extras.presentToast(mensaje);
+        this.back.navigate(['/ubicaciones', this.campana, this.name]);
+      }, 500);
+    } catch (error) {
+      console.error('Error en guardarRegistro:', error);
+      this.extras.presentToast('❌ Error guardando el registro');
+    } finally {
+      this.extras.loading.dismiss();
     }
-
-
+  }
 }

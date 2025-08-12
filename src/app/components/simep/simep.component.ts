@@ -29,7 +29,7 @@ export class SimepComponent implements OnInit, OnDestroy {
   /**Dias */
   fecha = moment().format('YYYY-MM-DD');
   fechaHora = moment().format('YYYY-MM-DD H:mm:ss');
-  fechaHoraSatelite:any;
+  fechaHoraSatelite: any;
   ano = moment().format('YYYY');
   semana = moment(this.fecha).week();
   today = Date.now();
@@ -38,13 +38,13 @@ export class SimepComponent implements OnInit, OnDestroy {
   latitud?: number;
   longitud?: number;
   presicion?: number;
-  orientacion:string = ""
+  orientacion: string = '';
   campo: any = [];
 
   captura: any = {
     id: null,
     captura: 0,
-    recomendacion: null,
+    recomendacion: 1,
     trampa_id: null,
     instalada: null,
   };
@@ -125,7 +125,7 @@ export class SimepComponent implements OnInit, OnDestroy {
           this.extras.loading.dismiss();
           this.back.navigate(['/ubicaciones/1']);
           this.extras.presentToast(
-            'No se encontró la ubicación intente nuevamente.',
+            '❌  No se encontró la ubicación intente nuevamente.',
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
@@ -215,38 +215,39 @@ export class SimepComponent implements OnInit, OnDestroy {
     }
   }
   async save() {
-    if (
-      !this.presicion ||
-      this.presicion > 16 ||
-      !this.latitud ||
-      !this.longitud
-    ) {
+    if (this.presicion == null || this.presicion > 16) {
+      setTimeout(() => {
+        this.extras.loading.dismiss();
+        this.extras.presentToast(
+          'La precisión debe de ser menor a 16 para poder guardar el registro',
+        );
+      }, 1500);
+    } else if (this.latitud == null || this.longitud == null) {
       setTimeout(() => {
         this.extras.loading.dismiss();
         this.extras.presentToast('No se encontró una posición válida');
       }, 1500);
-      return;
-    }
-
-    if (this.status === 2) {
-      const alert = await this.alertController.create({
-        header: 'Ya has hecho este registro anteriormente',
-        message: '¿Estás seguro que deseas sobrescribir?',
-        buttons: [
-          { text: 'No', role: 'cancel', cssClass: 'secondary' },
-          {
-            text: 'Sí',
-            handler: async () => {
-              await alert.dismiss();
-              this.guardarRegistro(true);
-            },
-          },
-        ],
-      });
-
-      await alert.present();
     } else {
-      this.guardarRegistro(false);
+      if (this.status === 2) {
+        const alert = await this.alertController.create({
+          header: 'Ya has hecho este registro anteriormente',
+          message: '¿Estás seguro que deseas sobrescribir?',
+          buttons: [
+            { text: 'No', role: 'cancel', cssClass: 'secondary' },
+            {
+              text: 'Sí',
+              handler: async () => {
+                await alert.dismiss();
+                this.guardarRegistro(true);
+              },
+            },
+          ],
+        });
+
+        await alert.present();
+      } else {
+        this.guardarRegistro(false);
+      }
     }
   }
   async guardarRegistro(isUpdate: boolean) {
@@ -288,9 +289,8 @@ export class SimepComponent implements OnInit, OnDestroy {
       let mensaje = '⚠️ Registro guardado localmente';
       if (result && typeof result === 'object' && result.status === 'success') {
         mensaje = '✅ Registro guardado localmente y en línea';
-      }
-      else if (result.status === 'warning') {
-        mensaje = '⚠️ '+ result.message +'. Registro guardado localmente';
+      } else if (result.status === 'warning') {
+        mensaje = '⚠️ ' + result.message + '. Registro guardado localmente';
       } else if (result.status === 'error') {
         mensaje = '⚠️ Registro guardado localmente';
       }

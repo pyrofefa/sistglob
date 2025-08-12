@@ -12,7 +12,7 @@ import * as moment from "moment";
   standalone: false
 })
 export class SimpicudoPage implements OnInit {
-  simpicudoRegistros: any = [];
+  registros: any = [];
   name: any;
 
   nombre$ = new EventEmitter<string>();
@@ -35,7 +35,7 @@ export class SimpicudoPage implements OnInit {
     this.simpicudo
       .getCapturas()
       .then((res) => {
-        this.simpicudoRegistros = res;
+        this.registros = res;
       })
       .catch((error) => {
         alert(error);
@@ -46,7 +46,6 @@ export class SimpicudoPage implements OnInit {
     this.route.navigate(['/registro-detalle', item, this.name]);
   }
   actualizar() {
-    this.simpicudoRegistros = 0;
     this.ngOnInit();
   }
   async buscar() {
@@ -72,7 +71,7 @@ export class SimpicudoPage implements OnInit {
     this.simpicudo
       .getBuscar(fechaParse)
       .then((res) => {
-        this.simpicudoRegistros = res;
+        this.registros = res;
       })
       .catch((error) => {
         console.log(error);

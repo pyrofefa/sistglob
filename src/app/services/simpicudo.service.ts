@@ -74,7 +74,7 @@ export class SimpicudoService {
   }
 
   async getCapturaId(id: number): Promise<any[]> {
-    const sql = `SELECT fenologias.name as fenologia, trampas.name as trampa, simpicudo.id, simpicudo.siembra_id, simpicudo.captura, simpicudo.infestacion, simpicudo.feromona, acciones.name as accion,  simpicudo.longitud as y, simpicudo.latitud as x, simpicudo.accuracy, simpicudo.fechaHora, simpicudo.fecha, trampas.latitud, trampas.longitud, trampas.campo FROM trampas INNER JOIN simpicudo ON simpicudo.trampa_id = trampas.id_bit LEFT JOIN fenologias ON simpicudo.fenologia = fenologias.id LEFT JOIN acciones ON simpicudo.accion = acciones.id WHERE simpicudo.id = ? AND fenologias.campana_id = 8 AND trampas.campana_id = 8 LIMIT 1`;
+    const sql = `SELECT fenologias.name as fenologia, trampas.name as trampa, simpicudo.id, simpicudo.siembra_id, simpicudo.captura, simpicudo.infestacion, simpicudo.feromona, acciones.name as accion,  simpicudo.longitud as y, simpicudo.latitud as x, simpicudo.accuracy, simpicudo.fechaHora, simpicudo.fecha, trampas.latitud, trampas.longitud, trampas.campo FROM trampas INNER JOIN simpicudo ON simpicudo.trampa_id = trampas.id_bit LEFT JOIN fenologias ON simpicudo.fenologia = fenologias.id LEFT JOIN acciones ON simpicudo.accion = acciones.id WHERE simpicudo.id = ? AND acciones.campana_id = 8 AND fenologias.campana_id = 8 AND trampas.campana_id = 8 LIMIT 1`;
     const res = await this.db?.query(sql, [id]);
     return res?.values ?? [];
   }
@@ -116,13 +116,9 @@ export class SimpicudoService {
           captura
         ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
-    console.log('Valores del INSERT:', values);
-
     try {
       const result = await this.db?.run(sql, values);
       const lastId = result?.changes?.lastId;
-
-      console.log('Valores del INSERT:', values);
 
       const response: any = await lastValueFrom(
         this.http.post<ApiResponse>(url, params),
@@ -223,17 +219,20 @@ export class SimpicudoService {
           longitud: captura.longitud,
           accuracy: captura.accuracy,
           distancia_qr: captura.distancia_qr,
-          captura: captura.captura,
-          fenologia: captura.fenologia,
-          infestacion: captura.infestacion,
           method: 1,
           user_id: captura.user_id,
           personal_id: captura.personal_id,
           junta_id: captura.junta_id,
           id_bd_cel: captura.id_bd_cel,
           fechaHora_cel: captura.fechaHora,
-          version: captura.version,
           status: 1,
+          version: captura.version,
+          siembra_id: captura.siembra_id,
+          captura: captura.captura,
+          fenologia: captura.fenologia,
+          infestacion: captura.infestacion,
+          accion: captura.accion,
+          feromona: captura.feromona,
           tipo: 'Subir Datos',
         };
 
@@ -247,7 +246,6 @@ export class SimpicudoService {
           }
         } catch (httpError) {
           console.error('Error al enviar captura:', httpError);
-          // puedes optar por continuar con las demás o lanzar error según la lógica deseada
         }
       }
       return { status: 'success', message: 'Capturas subidas correctamente' };
@@ -278,17 +276,20 @@ export class SimpicudoService {
         longitud: captura.longitud,
         accuracy: captura.accuracy,
         distancia_qr: captura.distancia_qr,
-        captura: captura.captura,
-        fenologia: captura.fenologia,
-        infestacion: captura.infestacion,
         method: 1,
         user_id: captura.user_id,
         personal_id: captura.personal_id,
         junta_id: captura.junta_id,
         id_bd_cel: captura.id_bd_cel,
         fechaHora_cel: captura.fechaHora,
-        version: captura.version,
         status: 1,
+        version: captura.version,
+        siembra_id: captura.siembra_id,
+        captura: captura.captura,
+        fenologia: captura.fenologia,
+        infestacion: captura.infestacion,
+        accion: captura.accion,
+        feromona: captura.feromona,
         tipo: 'Reenviando Datos',
       };
 

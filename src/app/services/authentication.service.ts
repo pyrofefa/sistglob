@@ -17,7 +17,7 @@ export class AuthenticationService {
     private plt: Platform,
     public http: HttpClient,
     public info: InfoService,
-    public tablas: TablasService
+    public tablas: TablasService,
   ) {
     this.plt.ready().then(() => {
       this.checkToken();
@@ -40,20 +40,6 @@ export class AuthenticationService {
       this.http.post(url, params).subscribe(
         async (data: any) => {
           if (data.success) {
-const personalId = data?.data?.personal_id;
-const juntaId = data?.data?.junta_id;
-const tipo = data?.tipo;
-const userId = data?.data?.user_id;
-
-if (
-  userId === undefined || personalId === undefined ||
-  juntaId === undefined || tipo === undefined
-) {
-  console.error('❌ Uno o más valores requeridos son undefined');
-  resolve({ success: false, message: 'Datos incompletos del servidor' });
-  return;
-}
-
             await Preferences.set({
               key: environment.TOKEN_KEY,
               value: data.data.user_id.toString(),
@@ -82,7 +68,7 @@ if (
               data.data.junta_name,
               data.data.personal_id,
               data.data.junta_sicafi_id,
-              data.data.email
+              data.data.email,
             );
             // Ejecutar operaciones secuenciales
             await this.tablas.getServicesTablas();
@@ -93,11 +79,11 @@ if (
             await this.tablas.getServicesRecomendaciones();
             await this.tablas.getServiceUbicaciones(
               data.data.personal_id,
-              data.data.junta_id
+              data.data.junta_id,
             );
             await this.tablas.getSimtrampeo(
               data.data.personal_id,
-              data.data.junta_id
+              data.data.junta_id,
             );
 
             this.authenticationState.next(true);
@@ -107,8 +93,8 @@ if (
           }
         },
         (error) => {
-          resolve({ success: false, message: 'Error de red', error });
-        }
+          resolve({ success: false, msj: 'Ocurrió un error al iniciar sesión, por favor intente más tarde.', error });
+        },
       );
     });
   }
@@ -129,7 +115,7 @@ if (
       if (!value) return;
 
       const data: any = await this.http.get(
-        `${environment.APIUrl}getUsuario/${value}`
+        `${environment.APIUrl}getUsuario/${value}`,
       );
       await this.info.updateProfile(
         data.data.user_id,
@@ -141,7 +127,7 @@ if (
         data.data.junta_name,
         data.data.personal_id,
         data.data.junta_sicafi_id,
-        data.data.email
+        data.data.email,
       );
       return data;
     } catch (error) {

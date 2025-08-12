@@ -11,7 +11,7 @@ import * as moment from 'moment';
   standalone: false,
 })
 export class SimepPage implements OnInit {
-  simepRegistros: any = [];
+  registros: any = [];
   name: any;
 
   constructor(
@@ -27,7 +27,7 @@ export class SimepPage implements OnInit {
       .getCapturas()
       .then((res) => {
         console.log("SIMEP REGISTROS: ", res)
-        this.simepRegistros = res;
+        this.registros = res;
       })
       .catch((error) => {
         alert(error);
@@ -38,7 +38,6 @@ export class SimepPage implements OnInit {
     this.route.navigate(['/registro-detalle', item, this.name]);
   }
   actualizar() {
-    this.simepRegistros = 0;
     this.ngOnInit();
   }
   async buscar() {
@@ -64,7 +63,7 @@ export class SimepPage implements OnInit {
     this.simep
       .getBuscar(fechaParse)
       .then((res) => {
-        this.simepRegistros = res;
+        this.registros = res;
       })
       .catch((error) => {
         console.log(error);

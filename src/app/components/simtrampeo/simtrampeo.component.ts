@@ -11,6 +11,7 @@ import { AssetsService } from 'src/app/services/assests.service';
 import { SimtrampeoService } from 'src/app/services/simtrampeo.service';
 import { TrampasService } from 'src/app/services/trampas.service';
 import { buildCapturaSimtrampeo } from 'src/app/helpers/buildCapturaSimtrampeo';
+import { AccionesService } from 'src/app/services/acciones.service';
 
 const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
 
@@ -48,6 +49,8 @@ export class SimtrampeoComponent implements OnInit {
     latitud_rev: 1,
     longitud_rev: null,
     fecha_instalacion: null,
+    feromona: null,
+    accion: 1,
   };
   status: any;
 
@@ -68,11 +71,15 @@ export class SimtrampeoComponent implements OnInit {
   interval: any;
   version: any;
 
+  acciones: any;
+
   plaga: any;
   plagaId?: number;
   instalacion: any;
   nombre: any;
   titulo: any;
+
+  compareWithAccion: any;
 
   private listener: { remove: () => Promise<void> } | null = null;
   constructor(
@@ -84,6 +91,7 @@ export class SimtrampeoComponent implements OnInit {
     public capturas: SimtrampeoService,
     private zone: NgZone,
     private distance: CalculateDistancePipe,
+    private accion: AccionesService,
   ) {}
 
   async ngOnInit() {
@@ -174,7 +182,7 @@ export class SimtrampeoComponent implements OnInit {
           this.extras.loading.dismiss();
           this.back.navigate(['/ubicaciones/1']);
           this.extras.presentToast(
-            'No se encontró la ubicación intente nuevamente.',
+            '❌  No se encontró la ubicación intente nuevamente.',
           );
         } else {
           this.capturas
@@ -199,8 +207,12 @@ export class SimtrampeoComponent implements OnInit {
                   .then((res) => {
                     if (res != null && res.length > 0) {
                       for (let result of res) {
+                        if(result.status == 5){
+                          this.status = 4
+                        } else {
+                          this.status = result.status;
+                        }
                         this.captura.id = result.id;
-                        this.status = result.status;
                         this.captura.fecha_instalacion = result.fecha_instalacion;
                         this.captura.captura = result.captura;
                       }
@@ -247,6 +259,7 @@ export class SimtrampeoComponent implements OnInit {
                 break;
             }
           }
+          this.getAcciones();
           this.idBdCel();
         }
       })
@@ -259,33 +272,36 @@ export class SimtrampeoComponent implements OnInit {
 
   async save(instalacion: number) {
     this.extras.cargandoMessage('Guardando');
-
     // 📌 Validaciones iniciales
     if (this.presicion == null || this.presicion > 16) {
-      /*return this.handleError(
-        'La precisión debe de ser menor a 16 para poder guardar el registro',
-      );*/
+      setTimeout(() => {
+        this.extras.loading.dismiss();
+        this.extras.presentToast('La precisión debe de ser menor a 16 para poder guardar el registro');
+      }, 1500);
     }
-
-    if (this.latitud == null || this.longitud == null) {
-      //return this.handleError('No se encontró posición');
+    else if (this.latitud == null || this.longitud == null) {
+      setTimeout(() => {
+        this.extras.loading.dismiss();
+        this.extras.presentToast('No se encontró una posición válida');
+      }, 1500);
     }
-
-    // 📌 Lógica principal
-    if (instalacion === 1) {
-      await this.handleInstalacion();
-    } else if (instalacion === 0) {
-      await this.handleNoInstalacion();
+    else {
+      // 📌 Lógica principal
+      if (instalacion === 1) {
+        await this.handleInstalacion();
+      } else if (instalacion === 0) {
+        await this.handleNoInstalacion();
+      }
     }
   }
 
   // 🧩 Maneja cuando instalacion = 1
   private async handleInstalacion() {
-    this.captura.latitud_ins = this.latitud
-    this.captura.longitud_ins = this.longitud
-    this.captura.latitud_rev = this.latitud
-    this.captura.longitud_rev = this.longitud
-    this.captura.fecha_instalacion = this.fecha
+    this.captura.latitud_ins = this.latitud;
+    this.captura.longitud_ins = this.longitud;
+    this.captura.latitud_rev = this.latitud;
+    this.captura.longitud_rev = this.longitud;
+    this.captura.fecha_instalacion = this.fecha;
 
     const isVencido = this.dias > 10;
 
@@ -307,11 +323,11 @@ export class SimtrampeoComponent implements OnInit {
 
   // 🧩 Maneja cuando instalacion = 0
   private async handleNoInstalacion() {
-    this.captura.latitud_ins = this.latitud
-    this.captura.longitud_ins = this.longitud
-    this.captura.latitud_rev = this.latitud
-    this.captura.longitud_rev = this.longitud
-    this.captura.fecha_instalacion = this.fecha
+    this.captura.latitud_ins = this.latitud;
+    this.captura.longitud_ins = this.longitud;
+    this.captura.latitud_rev = this.latitud;
+    this.captura.longitud_rev = this.longitud;
+    this.captura.fecha_instalacion = this.fecha;
 
     if (this.status === 2) {
       await this.extras.loading.dismiss();
@@ -339,7 +355,7 @@ export class SimtrampeoComponent implements OnInit {
 
       await alert.present();
     } else {
-      let result = await this.capturas.insert(this.getParams())
+      let result = await this.capturas.insert(this.getParams());
       this.finalizarGuardar(result);
     }
   }
@@ -384,8 +400,38 @@ export class SimtrampeoComponent implements OnInit {
       this.version,
       this.siembra_id,
       this.instalacion,
-      this.status
-    )
-    return capturaData
+      this.status,
+    );
+    return capturaData;
+  }
+
+  compareWithFnAcciones(a: any, b: any): boolean {
+    return a === b;
+  }
+  getAcciones() {
+    this.accion
+      .getAcciones(this.campana)
+      .then((res) => {
+        this.acciones = res;
+        // Si estamos en instalación == 1, filtramos para quitar el id 2 (instalacion)
+        if (this.instalacion == 1) {
+          this.acciones = this.acciones.filter(
+            (accion: any) => accion.id !== 2,
+          );
+        }
+        this.compareWithAccion = this.compareWithFnAcciones;
+      })
+      .catch((error) => {
+        alert(error);
+      });
+  }
+  seleccionar() {
+    if (this.captura.accion == 3) {
+      this.captura.captura = 0;
+      this.captura.instalada = 1;
+    } else {
+      this.captura.observacion = null;
+      this.captura.instalada = 0;
+    }
   }
 }

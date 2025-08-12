@@ -35,6 +35,7 @@ export class SimdiaComponent implements OnInit {
   ano = moment().format('YYYY');
   semana = moment(this.fecha).week();
   today = Date.now();
+  fechaGPS: any;
 
   /**Posicion */
   latitud?: number;
@@ -89,6 +90,9 @@ export class SimdiaComponent implements OnInit {
 
   interval: any;
   version: any;
+
+  horaValida: boolean = true;
+  bloquearCaptura: boolean = true;
 
   private listener: { remove: () => Promise<void> } | null = null;
 
@@ -173,23 +177,59 @@ export class SimdiaComponent implements OnInit {
   private async startGPSWatch() {
     try {
       await GPSSiafeson.startWatch();
+
       this.listener = await GPSSiafeson.addListener('gpsData', (data) => {
         this.zone.run(() => {
           this.latitud = data.latitude;
           this.longitud = data.longitude;
           this.presicion = data.accuracy;
+
           const gpsMoment = moment(data.timestamp);
           const sistemaMoment = moment();
+
           const diferenciaSegundos = Math.abs(
             sistemaMoment.diff(gpsMoment, 'seconds'),
           );
+
+          const mismoDia = gpsMoment.isSame(sistemaMoment, 'day');
+
+          if (data.isMock) {
+            this.extras.presentToast('❗Ubicación simulada detectada.');
+            this.bloquearCaptura = true;
+          } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
+            this.extras.presentToast(
+              '⚠️ Ubicación sospechosa: salto o velocidad irreal.',
+            );
+            this.bloquearCaptura = true;
+          }
+
+          this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
+          this.fecha = sistemaMoment.format('YYYY-MM-DD');
           this.fechaHoraSatelite = gpsMoment.format('YYYY-MM-DD HH:mm:ss');
+
+          if (!mismoDia) {
+            this.horaValida = false;
+            this.bloquearCaptura = true;
+            this.extras.presentToast(
+              '⚠️ La fecha del GPS no coincide con la del sistema. Verifica la fecha del dispositivo.',
+            );
+          } else if (diferenciaSegundos > 5) {
+            this.horaValida = false;
+            this.bloquearCaptura = true;
+            this.extras.presentToast(
+              '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.',
+            );
+          } else {
+            this.bloquearCaptura = false;
+            this.horaValida = true;
+          }
         });
       });
     } catch (error) {
       console.error('Error al iniciar GPS:', error);
     }
   }
+
   cargar() {
     this.trampa
       .getTrampaid(this.campana, this.id)
@@ -198,7 +238,7 @@ export class SimdiaComponent implements OnInit {
           this.extras.loading.dismiss();
           this.back.navigate(['/ubicaciones/1']);
           this.extras.presentToast(
-            'No se encontró la ubicación intente nuevamente.',
+            '❌  No se encontró la ubicación intente nuevamente.',
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
@@ -293,38 +333,39 @@ export class SimdiaComponent implements OnInit {
     }
   }
   async save() {
-    if (
-      !this.presicion ||
-      this.presicion > 16 ||
-      !this.latitud ||
-      !this.longitud
-    ) {
+    if (this.presicion == null || this.presicion > 16) {
+      setTimeout(() => {
+        this.extras.loading.dismiss();
+        this.extras.presentToast(
+          'La precisión debe de ser menor a 16 para poder guardar el registro',
+        );
+      }, 1500);
+    } else if (this.latitud == null || this.longitud == null) {
       setTimeout(() => {
         this.extras.loading.dismiss();
         this.extras.presentToast('No se encontró una posición válida');
       }, 1500);
-      return;
-    }
-
-    if (this.status === 2) {
-      const alert = await this.alertController.create({
-        header: 'Ya has hecho este registro anteriormente',
-        message: '¿Estás seguro que deseas sobrescribir?',
-        buttons: [
-          { text: 'No', role: 'cancel', cssClass: 'secondary' },
-          {
-            text: 'Sí',
-            handler: async () => {
-              await alert.dismiss();
-              this.guardarRegistro(true);
-            },
-          },
-        ],
-      });
-
-      await alert.present();
     } else {
-      this.guardarRegistro(false);
+      if (this.status === 2) {
+        const alert = await this.alertController.create({
+          header: 'Ya has hecho este registro anteriormente',
+          message: '¿Estás seguro que deseas sobrescribir?',
+          buttons: [
+            { text: 'No', role: 'cancel', cssClass: 'secondary' },
+            {
+              text: 'Sí',
+              handler: async () => {
+                await alert.dismiss();
+                this.guardarRegistro(true);
+              },
+            },
+          ],
+        });
+
+        await alert.present();
+      } else {
+        this.guardarRegistro(false);
+      }
     }
   }
 

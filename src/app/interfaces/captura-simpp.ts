@@ -9,7 +9,9 @@ export interface CapturaSimpp {
     captura: number;
     fenologia: number;
     atrayente: number;
-    feromona: number,
+    feromona: number;
+    instalada: number;
+    revisada: number;
     id: number;
   },
   longitud: number;
@@ -50,12 +52,6 @@ export function buildInsertPayloads(data: CapturaSimpp): {
 
   const params = {
     trampa_id: captura.trampa_id,
-    accion: captura.accion,
-    observacion_id: captura.observacion,
-    captura: captura.captura,
-    fenologia: captura.fenologia,
-    cambio_atrayente: captura.atrayente,
-    feromona: captura.feromona,
     fecha,
     semana,
     ano,
@@ -63,12 +59,21 @@ export function buildInsertPayloads(data: CapturaSimpp): {
     longitud,
     accuracy: presicion,
     distancia_qr,
+    captura: captura.captura,
+    fenologia_id: captura.fenologia,
+    trampas_instaladas: captura.instalada,
+    trampas_revisadas: captura.revisada,
+    cambio_atrayente: captura.atrayente,
+    observacion_id: captura.observacion,
+    accion: captura.accion,
+    feromona: captura.feromona ? 1 : 0,
     method: 1,
     user_id,
     personal_id,
     junta_id,
     id_bd_cel,
     fechaHora_cel: fechaHora,
+    fechaHora_sat: fechaHora,
     status: 1,
     version,
     siembra_id,
@@ -97,7 +102,9 @@ export function buildInsertPayloads(data: CapturaSimpp): {
     captura.captura,
     captura.fenologia,
     captura.atrayente,
-    captura.feromona
+    captura.feromona,
+    captura.instalada,
+    captura.revisada
   ];
 
   return { params, values };
@@ -127,6 +134,7 @@ export function buildUpdatePayloads(data: CapturaSimpp): {
   } = data;
 
   const params = {
+    trampa_id: captura.trampa_id,
     fecha,
     semana,
     ano,
@@ -134,20 +142,24 @@ export function buildUpdatePayloads(data: CapturaSimpp): {
     longitud,
     accuracy: presicion,
     distancia_qr,
+    captura: captura.captura,
+    fenologia_id: captura.fenologia,
+    trampas_instaladas: captura.instalada,
+    trampas_revisadas: captura.revisada,
+    cambio_atrayente: captura.atrayente,
+    observacion_id: captura.observacion,
+    accion: captura.accion,
+    feromona: captura.feromona ? 1 : 0,
     method: 1,
     user_id,
     personal_id,
     junta_id,
     id_bd_cel,
     fechaHora_cel: fechaHora,
+    fechaHora_sat: fechaHora,
     status: 1,
     version,
     siembra_id,
-    trampa_id: captura.trampa_id,
-    accion: captura.accion,
-    feromona: captura.feromona,
-    fenologia: captura.fenologia,
-    captura: captura.captura,
     tipo: 'Captura'
   };
 
@@ -173,6 +185,8 @@ export function buildUpdatePayloads(data: CapturaSimpp): {
     captura.fenologia,
     captura.atrayente,
     captura.feromona,
+    captura.instalada,
+    captura.revisada,
     captura.id // este va al final porque es el WHERE id = ?
   ];
 
