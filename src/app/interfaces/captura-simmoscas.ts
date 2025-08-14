@@ -175,6 +175,7 @@ export function buildUpdatePayloads(data: CapturaSimmoscas): {
     2, // status local
     ano,
     semana,
+    id_bd_cel,
     version,
     captura.trampa_id,
     siembra_id,

@@ -86,64 +86,6 @@ export class SimtoService {
     }
   }
 
-  async subir(): Promise<any> {
-    const url = environment.APIUrl + 'trampeo/captura/simto';
-    try {
-      const query = 'SELECT * FROM simto WHERE status = 2 ORDER BY id ASC';
-      const res = await this.db?.query(query);
-
-      const capturas = res?.values ?? [];
-
-      for (const captura of capturas) {
-        const params: any = {
-          trampa_id: captura.trampa_id,
-          fecha: captura.fecha,
-          semana: captura.semana,
-          ano: captura.ano,
-          latitud_ins: captura.latitud_ins,
-          longitud_ins: captura.longitud_ins,
-          latitud_rev: captura.latitud_rev,
-          longitud_rev: captura.longitud_rev,
-          accuracy: captura.accuracy,
-          distancia_qr: captura.distancia_qr,
-          fecha_instalacion: captura.fecha_instalacion,
-          captura: captura.captura,
-          method: 1,
-          user_id: captura.user_id,
-          personal_id: captura.personal_id,
-          junta_id: captura.junta_id,
-          id_bd_cel: captura.id_bd_cel,
-          fechaHora_cel: captura.fechaHora,
-          version: captura.version,
-          status: 1,
-          tipo: 'Subir datos',
-        };
-
-        try {
-          const response: any = await lastValueFrom(
-            this.http.post(url, params),
-          );
-          if (response.status === 'success' || response.status === 'warning') {
-            const updateSQL = 'UPDATE simto SET status = 1 WHERE id = ?';
-            await this.db?.run(updateSQL, [captura.id]);
-          }
-        } catch (httpError) {
-          console.error('Error al enviar captura:', httpError);
-          // puedes optar por continuar con las demás o lanzar error según la lógica deseada
-        }
-      }
-      return { status: 'success', message: 'Capturas subidas correctamente' };
-    } catch (dbError) {
-      console.error('Error al leer de la base de datos:', dbError);
-      throw dbError;
-    }
-  }
-
-
-
-
-
-
   async insert(data: CapturaSimto): Promise<number> {
     const { values } = buildInsertPayloads(data);
     console.log('valores del insert: ', values);
@@ -212,173 +154,268 @@ export class SimtoService {
         fenologia = ?
       WHERE id = ?`;
 
-      try {
-        // Actualizar registro localmente
-        await this.db?.run(sql, values);
+    try {
+      // Actualizar registro localmente
+      await this.db?.run(sql, values);
 
-        // Obtener el registro actualizado (muestreo)
-        const muestreoRes = await this.db?.query('SELECT * FROM simto WHERE id = ?',[data.captura.id]);
-        const muestreo = muestreoRes?.values ?? [];
+      // Obtener el registro actualizado (muestreo)
+      const muestreoRes = await this.db?.query(
+        'SELECT * FROM simto WHERE id = ?',
+        [data.captura.id],
+      );
+      const muestreo = muestreoRes?.values ?? [];
 
-        // Obtener detalles relacionados
-        const detalleRes = await this.db?.query('SELECT * FROM simto_detalle WHERE id_simto = ?', [data.captura.id]);
-        const detalleRows = detalleRes?.values ?? [];
+      // Obtener detalles relacionados
+      const detalleRes = await this.db?.query(
+        'SELECT * FROM simto_detalle WHERE id_simto = ?',
+        [data.captura.id],
+      );
+      const detalleRows = detalleRes?.values ?? [];
 
-        // Preparar arrays para el payload
-        const pt_ind: number[] = [];
-        const pt_lon: number[] = [];
-        const pt_lan: number[] = [];
-        const pt_acc: number[] = [];
-        const pt_dist: number[] = [];
-        const pt_insectos: any[] = [];
+      // Preparar arrays para el payload
+      const pt_ind: number[] = [];
+      const pt_lon: number[] = [];
+      const pt_lan: number[] = [];
+      const pt_acc: number[] = [];
+      const pt_dist: number[] = [];
+      const pt_insectos: any[] = [];
 
-        detalleRows.forEach((row, index) => {
-          pt_ind.push(index + 1);
-          pt_lon.push(row.longitud);
-          pt_lan.push(row.latitud);
-          pt_acc.push(row.accuracy);
-          pt_dist.push(row.distancia_qr);
-          pt_insectos.push(row.captura);
-        });
+      detalleRows.forEach((row, index) => {
+        pt_ind.push(index + 1);
+        pt_lon.push(row.longitud);
+        pt_lan.push(row.latitud);
+        pt_acc.push(row.accuracy);
+        pt_dist.push(row.distancia_qr);
+        pt_insectos.push(row.captura);
+      });
 
-        // Construir payload con toda la info
-        const payload = {
-          ...params, // para actualizar en algun momento
-          muestreo,
-          pt_ind: pt_ind.join(','),
-          pt_lon: pt_lon.join(','),
-          pt_lan: pt_lan.join(','),
-          pt_acc: pt_acc.join(','),
-          pt_dist: pt_dist.join(','),
-          pt_insectos: pt_insectos.join(','),
-        };
+      // Construir payload con toda la info
+      const payload = {
+        ...params, // para actualizar en algun momento
+        muestreo,
+        pt_ind: pt_ind.join(','),
+        pt_lon: pt_lon.join(','),
+        pt_lan: pt_lan.join(','),
+        pt_acc: pt_acc.join(','),
+        pt_dist: pt_dist.join(','),
+        pt_insectos: pt_insectos.join(','),
+      };
 
-        // Enviar al servidor
-        const response: ApiResponse = await lastValueFrom(
-          this.http.post<ApiResponse>(url, payload),
-        );
+      // Enviar al servidor
+      const response: ApiResponse = await lastValueFrom(
+        this.http.post<ApiResponse>(url, payload),
+      );
 
-        if (response.status === 'success' || response.status === 'warning') {
-          // Actualizar status local a 1 (enviado)
-          const updateSimto = 'UPDATE simto SET status = 1 WHERE id = ?';
-          const updateDetail = 'UPDATE simto_detalle SET status = 1 WHERE id_simto = ?';
+      if (response.status === 'success' || response.status === 'warning') {
+        // Actualizar status local a 1 (enviado)
+        const updateSimto = 'UPDATE simto SET status = 1 WHERE id = ?';
+        const updateDetail =
+          'UPDATE simto_detalle SET status = 1 WHERE id_simto = ?';
 
-          await this.db?.run(updateSimto, [data.captura.id]);
-          await this.db?.run(updateDetail, [data.captura.id]);
-
-          return {
-            status: response.status,
-            message: response.message ?? 'Captura actualizada correctamente',
-          };
-        }
-        // Si no fue éxito ni warning, retornar error con mensaje del servidor
-        return {
-          status: 'error',
-          message:
-            response.message ?? 'No se pudo actualizar la captura en el servidor',
-        };
-      } catch (error: any) {
-        console.error('Error actualizando captura:', error);
-
-        // En caso de error, marcar status = 2 (error local)
-        try {
-        const updateSimto = 'UPDATE simto SET status = 2 WHERE id = ?';
-          const updateDetail = 'UPDATE simto_detalle SET status = 2 WHERE id_simto = ?';
-          await this.db?.run(updateSimto, [data.captura.id]);
-          await this.db?.run(updateDetail, [data.captura.id]);
-        } catch (err) {
-          console.error('Error marcando estado de error local:', err);
-        }
+        await this.db?.run(updateSimto, [data.captura.id]);
+        await this.db?.run(updateDetail, [data.captura.id]);
 
         return {
-          status: 'error',
-          message: error?.message ?? 'Error desconocido al guardar la captura',
+          status: response.status,
+          message: response.message ?? 'Captura actualizada correctamente',
         };
       }
+      // Si no fue éxito ni warning, retornar error con mensaje del servidor
+      return {
+        status: 'error',
+        message:
+          response.message ?? 'No se pudo actualizar la captura en el servidor',
+      };
+    } catch (error: any) {
+      console.error('Error actualizando captura:', error);
+
+      // En caso de error, marcar status = 2 (error local)
+      try {
+        const updateSimto = 'UPDATE simto SET status = 2 WHERE id = ?';
+        const updateDetail =
+          'UPDATE simto_detalle SET status = 2 WHERE id_simto = ?';
+        await this.db?.run(updateSimto, [data.captura.id]);
+        await this.db?.run(updateDetail, [data.captura.id]);
+      } catch (err) {
+        console.error('Error marcando estado de error local:', err);
+      }
+
+      return {
+        status: 'error',
+        message: error?.message ?? 'Error desconocido al guardar la captura',
+      };
+    }
   }
 
-   async reenviar(id:number): Promise<ApiResponse> {
+  async subir(): Promise<any> {
+    const url = environment.APIUrl + 'trampeo/captura/simto';
+    try {
+      // Obtener capturas con status = 2
+      const query = 'SELECT * FROM simto WHERE status = 2 ORDER BY id ASC';
+      const res = await this.db?.query(query);
+      const capturas = res?.values ?? [];
+
+      for (const captura of capturas) {
+        try {
+          // Obtener detalles relacionados
+          const detalleRes = await this.db?.query(
+            'SELECT * FROM simto_detalle WHERE id_simto = ?',
+            [captura.id],
+          );
+          const detalleRows = detalleRes?.values ?? [];
+
+          // Preparar arrays para el payload
+          const pt_ind: number[] = [];
+          const pt_lon: number[] = [];
+          const pt_lan: number[] = [];
+          const pt_acc: number[] = [];
+          const pt_dist: number[] = [];
+          const pt_insectos: any[] = [];
+
+          detalleRows.forEach((row, index) => {
+            pt_ind.push(index + 1);
+            pt_lon.push(row.longitud);
+            pt_lan.push(row.latitud);
+            pt_acc.push(row.accuracy);
+            pt_dist.push(row.distancia_qr);
+            pt_insectos.push(row.captura);
+          });
+
+          // Construir payload
+          const payload = {
+            muestreo: captura, // Enviar toda la fila principal
+            pt_ind: pt_ind.join(','),
+            pt_lon: pt_lon.join(','),
+            pt_lan: pt_lan.join(','),
+            pt_acc: pt_acc.join(','),
+            pt_dist: pt_dist.join(','),
+            pt_insectos: pt_insectos.join(','),
+          };
+
+          // Enviar al servidor
+          const response: any = await lastValueFrom(
+            this.http.post(url, payload),
+          );
+
+          if (response.status === 'success' || response.status === 'warning') {
+            // Actualizar status local
+            const updateSimto = 'UPDATE simto SET status = 1 WHERE id = ?';
+            const updateDetail =
+              'UPDATE simto_detalle SET status = 1 WHERE id_simto = ?';
+            await this.db?.run(updateSimto, [captura.id]);
+            await this.db?.run(updateDetail, [captura.id]);
+          } else {
+            console.error('Error en respuesta del servidor:', response);
+          }
+        } catch (httpError) {
+          console.error('Error al enviar captura:', httpError);
+
+          // Marcar como error local
+          const updateSimto = 'UPDATE simto SET status = 2 WHERE id = ?';
+          const updateDetail =
+            'UPDATE simto_detalle SET status = 2 WHERE id_simto = ?';
+          await this.db?.run(updateSimto, [captura.id]);
+          await this.db?.run(updateDetail, [captura.id]);
+        }
+      }
+
+      return { status: 'success', message: 'Capturas subidas correctamente' };
+    } catch (dbError) {
+      console.error('Error al leer de la base de datos:', dbError);
+      throw dbError;
+    }
+  }
+
+  async reenviar(id: number): Promise<ApiResponse> {
     const url = environment.APIUrl + 'trampeo/captura/simto';
 
-      try {
-        // Obtener el registro
-        const muestreoRes = await this.db?.query('SELECT * FROM simto WHERE id = ?',[id]);
-        const muestreo = muestreoRes?.values ?? [];
+    try {
+      // Obtener el registro
+      const muestreoRes = await this.db?.query(
+        'SELECT * FROM simto WHERE id = ?',
+        [id],
+      );
+      const muestreo = muestreoRes?.values ?? [];
 
-        // Obtener detalles relacionados
-        const detalleRes = await this.db?.query('SELECT * FROM simto_detalle WHERE id_simto = ?', [id]);
-        const detalleRows = detalleRes?.values ?? [];
+      // Obtener detalles relacionados
+      const detalleRes = await this.db?.query(
+        'SELECT * FROM simto_detalle WHERE id_simto = ?',
+        [id],
+      );
+      const detalleRows = detalleRes?.values ?? [];
 
-        // Preparar arrays para el payload
-        const pt_ind: number[] = [];
-        const pt_lon: number[] = [];
-        const pt_lan: number[] = [];
-        const pt_acc: number[] = [];
-        const pt_dist: number[] = [];
-        const pt_insectos: any[] = [];
+      // Preparar arrays para el payload
+      const pt_ind: number[] = [];
+      const pt_lon: number[] = [];
+      const pt_lan: number[] = [];
+      const pt_acc: number[] = [];
+      const pt_dist: number[] = [];
+      const pt_insectos: any[] = [];
 
-        detalleRows.forEach((row, index) => {
-          pt_ind.push(index + 1);
-          pt_lon.push(row.longitud);
-          pt_lan.push(row.latitud);
-          pt_acc.push(row.accuracy);
-          pt_dist.push(row.distancia_qr);
-          pt_insectos.push(row.captura);
-        });
+      detalleRows.forEach((row, index) => {
+        pt_ind.push(index + 1);
+        pt_lon.push(row.longitud);
+        pt_lan.push(row.latitud);
+        pt_acc.push(row.accuracy);
+        pt_dist.push(row.distancia_qr);
+        pt_insectos.push(row.captura);
+      });
 
-        // Construir payload con toda la info
-        const payload = {
-          //...params, // para actualizar en algun momento
-          muestreo,
-          pt_ind: pt_ind.join(','),
-          pt_lon: pt_lon.join(','),
-          pt_lan: pt_lan.join(','),
-          pt_acc: pt_acc.join(','),
-          pt_dist: pt_dist.join(','),
-          pt_insectos: pt_insectos.join(','),
-        };
+      // Construir payload con toda la info
+      const payload = {
+        //...params, // para actualizar en algun momento
+        muestreo,
+        pt_ind: pt_ind.join(','),
+        pt_lon: pt_lon.join(','),
+        pt_lan: pt_lan.join(','),
+        pt_acc: pt_acc.join(','),
+        pt_dist: pt_dist.join(','),
+        pt_insectos: pt_insectos.join(','),
+      };
 
-        // Enviar al servidor
-        const response: ApiResponse = await lastValueFrom(
-          this.http.post<ApiResponse>(url, payload),
-        );
+      // Enviar al servidor
+      const response: ApiResponse = await lastValueFrom(
+        this.http.post<ApiResponse>(url, payload),
+      );
 
-        if (response.status === 'success' || response.status === 'warning') {
-          // Actualizar status local a 1 (enviado)
-          const updateSimto = 'UPDATE simto SET status = 1 WHERE id = ?';
-          const updateDetail = 'UPDATE simto_detalle SET status = 1 WHERE id_simto = ?';
+      if (response.status === 'success' || response.status === 'warning') {
+        // Actualizar status local a 1 (enviado)
+        const updateSimto = 'UPDATE simto SET status = 1 WHERE id = ?';
+        const updateDetail =
+          'UPDATE simto_detalle SET status = 1 WHERE id_simto = ?';
 
-          await this.db?.run(updateSimto, [id]);
-          await this.db?.run(updateDetail, [id]);
-
-          return {
-            status: response.status,
-            message: response.message ?? 'Captura actualizada correctamente',
-          };
-        }
-        // Si no fue éxito ni warning, retornar error con mensaje del servidor
-        return {
-          status: 'error',
-          message:
-            response.message ?? 'No se pudo actualizar la captura en el servidor',
-        };
-      } catch (error: any) {
-        console.error('Error actualizando captura:', error);
-
-        // En caso de error, marcar status = 2 (error local)
-        try {
-          const updateSimto = 'UPDATE simto SET status = 2 WHERE id = ?';
-          const updateDetail = 'UPDATE simto_detalle SET status = 2 WHERE id_simto = ?';
-          await this.db?.run(updateSimto, [id]);
-          await this.db?.run(updateDetail, [id]);
-        } catch (err) {
-          console.error('Error marcando estado de error local:', err);
-        }
+        await this.db?.run(updateSimto, [id]);
+        await this.db?.run(updateDetail, [id]);
 
         return {
-          status: 'error',
-          message: error?.message ?? 'Error desconocido al guardar la captura',
+          status: response.status,
+          message: response.message ?? 'Captura actualizada correctamente',
         };
       }
+      // Si no fue éxito ni warning, retornar error con mensaje del servidor
+      return {
+        status: 'error',
+        message:
+          response.message ?? 'No se pudo actualizar la captura en el servidor',
+      };
+    } catch (error: any) {
+      console.error('Error actualizando captura:', error);
+
+      // En caso de error, marcar status = 2 (error local)
+      try {
+        const updateSimto = 'UPDATE simto SET status = 2 WHERE id = ?';
+        const updateDetail =
+          'UPDATE simto_detalle SET status = 2 WHERE id_simto = ?';
+        await this.db?.run(updateSimto, [id]);
+        await this.db?.run(updateDetail, [id]);
+      } catch (err) {
+        console.error('Error marcando estado de error local:', err);
+      }
+
+      return {
+        status: 'error',
+        message: error?.message ?? 'Error desconocido al guardar la captura',
+      };
+    }
   }
 }

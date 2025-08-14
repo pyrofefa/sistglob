@@ -45,7 +45,7 @@ export class SimmoscasComponent implements OnInit {
   captura: any = {
     id: null,
     accion: null,
-    omision: null,
+    omision: 0,
     machos: 0,
     hembras: 0,
     instalada: null,
@@ -197,7 +197,7 @@ export class SimmoscasComponent implements OnInit {
               for (let result of res) {
                 this.captura.id = result.id;
                 this.captura.accion = result.accion;
-                this.captura.omision = result.omision;
+                this.captura.omision = result.omision ?? 0;
                 this.captura.machos = result.machos;
                 this.captura.hembras = result.hembras;
                 this.captura.instalada = result.instalada;
@@ -335,11 +335,11 @@ export class SimmoscasComponent implements OnInit {
         ? await this.capturas.update(capturaData)
         : await this.capturas.insert(capturaData);
 
-      let mensaje = '⚠️ Registro guardado localmente';
+      let mensaje = '';
       if (result && typeof result === 'object' && result.status === 'success') {
-        mensaje = '✅ Registro guardado localmente y en línea';
+        mensaje = '✅ '+ result.message;
       } else if (result.status === 'warning') {
-        mensaje = '⚠️ ' + result.message + '. Registro guardado localmente';
+        mensaje = '⚠️ ' + result.message;
       } else if (result.status === 'error') {
         mensaje = '⚠️ Registro guardado localmente';
       }

@@ -45,7 +45,7 @@ export class MigrationService {
     }
   }
 
-    //agregando campo fenologia
+  //agregando campo fenologia
   private async migracionV4(connection: SQLiteDBConnection): Promise<void> {
     const tablas = [
      'simpicudo', 'simmoscas'

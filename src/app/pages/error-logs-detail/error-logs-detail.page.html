@@ -1,0 +1,26 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/error-logs"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Detalle del Error</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content *ngIf="log; else noLog">
+  <ion-card>
+    <ion-card-header>
+      <ion-card-title>{{ log.message }}</ion-card-title>
+      <ion-card-subtitle>{{ log.date | date:'full' }}</ion-card-subtitle>
+    </ion-card-header>
+    <ion-card-content>
+      <pre>{{ log.detail }}</pre>
+    </ion-card-content>
+  </ion-card>
+</ion-content>
+
+<ng-template #noLog>
+  <ion-text color="medium" class="ion-padding">
+    <p>Error no encontrado</p>
+  </ion-text>
+</ng-template>

@@ -9,6 +9,8 @@ import {
   CapturaSimmoscas,
 } from '../interfaces/captura-simmoscas';
 import { ApiResponse } from '../interfaces/api-response';
+import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
+import { ErrorLogService } from './error-log.service';
 
 @Injectable({
   providedIn: 'root',
@@ -17,7 +19,10 @@ export class SimmoscasService {
   private db: SQLiteDBConnection | null = null;
   capturas$ = new EventEmitter<string>();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private logService: ErrorLogService,
+  ) {}
 
   setDatabase(db: SQLiteDBConnection) {
     this.db = db;
@@ -120,31 +125,57 @@ export class SimmoscasService {
           recebado,
           fenologia ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     try {
+      // 1️⃣ Guardar localmente (si falla aquí, sí detenemos todo)
       const result = await this.db?.run(sql, values);
       const lastId = result?.changes?.lastId;
 
-      const response: any = await lastValueFrom(
-        this.http.post<ApiResponse>(url, params),
-      );
+      // 2️⃣ Intentar enviar al servidor (pero no detener si falla)
+      try {
+        const response: any = await lastValueFrom(
+          this.http.post<ApiResponse>(url, params),
+        );
 
-      if (response.status === 'success' || response.status === 'warning') {
-        const updateStatusSql = 'UPDATE simmoscas SET status = 1 WHERE id = ?';
-        await this.db?.run(updateStatusSql, [lastId]);
+        if (response.status === 'success' || response.status === 'warning') {
+          const updateStatusSql =
+            'UPDATE simmoscas SET status = 1 WHERE id = ?';
+          await this.db?.run(updateStatusSql, [lastId]);
+          return {
+            status: response.status,
+            message:
+              response.message ?? 'Registro guardado localmente y en línea',
+          };
+        }
+
         return {
-          status: response.status,
-          message: response.message ?? 'Captura actualizada correctamente',
+          status: 'warning',
+          message: response.message ?? 'Registro guardado localmente',
+        };
+      } catch (httpError: any) {
+        // Sin internet u otro error HTTP
+        this.logService.agregarLog({
+          date: new Date().toISOString(),
+          message: 'Error enviando captura (offline)',
+          detail: httpError?.message || '',
+        });
+
+        return {
+          status: 'warning',
+          message: 'Registro guardado localmente',
         };
       }
-      return {
-        status: 'error',
-        message: response.message ?? 'No se pudo actualizar la captura',
-      };
-    } catch (error: any) {
-      console.error('Error insertando captura:', error);
-      return {
-        status: 'error',
-        message: error?.message ?? 'Error desconocido al guardar la captura',
-      };
+    } catch (dbError: any) {
+      // Errores críticos de base de datos
+      await FirebaseCrashlytics.recordException({
+        message: 'Error insertando captura: ' + dbError,
+      });
+
+      this.logService.agregarLog({
+        date: new Date().toISOString(),
+        message: dbError.stack || 'Error desconocido insertando captura',
+        detail: dbError.message || '',
+      });
+
+      throw dbError;
     }
   }
 
@@ -181,42 +212,75 @@ export class SimmoscasService {
         WHERE id = ?`;
 
     try {
-      const result = await this.db?.run(sql, values);
-      const lastId = result?.changes?.lastId;
+      // 1️⃣ Actualizar localmente (si falla aquí, se detiene)
+      await this.db?.run(sql, values);
 
-      const response: any = await lastValueFrom(
-        this.http.post<ApiResponse>(url, params),
-      );
+      // 2️⃣ Intentar enviar al servidor (pero no detener si falla)
+      try {
+        const response: any = await lastValueFrom(
+          this.http.post<ApiResponse>(url, params),
+        );
 
-      if (response.status === 'success' || response.status === 'warning') {
-        const updateStatusSql = 'UPDATE simmoscas SET status = 1 WHERE id = ?';
-        await this.db?.run(updateStatusSql, [data.captura.id]);
+        if (response.status === 'success' || response.status === 'warning') {
+          const updateStatusSql =
+            'UPDATE simmoscas SET status = 1 WHERE id = ?';
+          await this.db?.run(updateStatusSql, [data.captura.id]);
+          return {
+            status: response.status,
+            message:
+              response.message ?? 'Registro guardado localmente y en línea',
+          };
+        }
+
         return {
-          status: response.status,
-          message: response.message ?? 'Captura actualizada correctamente',
+          status: 'warning',
+          message: response.message ?? 'Registro guardado localmenteo',
+        };
+      } catch (httpError: any) {
+        this.logService.agregarLog({
+          date: new Date().toISOString(),
+          message: 'Error enviando captura (offline)',
+          detail: httpError?.message || '',
+        });
+
+        return {
+          status: 'warning',
+          message: 'Registro guardado localmente',
         };
       }
-      return {
-        status: 'error',
-        message: response.message ?? 'No se pudo actualizar la captura',
-      };
-    } catch (error: any) {
-      console.error('Error insertando captura:', error);
-      return {
-        status: 'error',
-        message: error?.message ?? 'Error desconocido al guardar la captura',
-      };
+    } catch (dbError: any) {
+      // Errores críticos de base de datos → sí se reportan
+      await FirebaseCrashlytics.recordException({
+        message: 'Error actualizando captura: ' + dbError,
+      });
+
+      this.logService.agregarLog({
+        date: new Date().toISOString(),
+        message: dbError.stack || 'Error desconocido actualizando captura',
+        detail: dbError.message || '',
+      });
+
+      throw dbError;
     }
   }
 
   async subir(): Promise<any> {
     const url = environment.APIUrl + 'trampeo/captura/simmoscas';
+
     try {
+      // 1️⃣ Leer capturas pendientes (si falla aquí, se detiene)
       const query = 'SELECT * FROM simmoscas WHERE status = 2 ORDER BY id ASC';
       const res = await this.db?.query(query);
 
       const capturas = res?.values ?? [];
+      if (capturas.length === 0) {
+        return {
+          status: 'info',
+          message: 'No hay capturas pendientes de subir',
+        };
+      }
 
+      // 2️⃣ Recorrer capturas y subirlas
       for (const captura of capturas) {
         const params: any = {
           trampa_id: captura.trampa_id,
@@ -250,24 +314,51 @@ export class SimmoscasService {
           const response: any = await lastValueFrom(
             this.http.post(url, params),
           );
+
           if (response.status === 'success' || response.status === 'warning') {
             const updateSQL = 'UPDATE simmoscas SET status = 1 WHERE id = ?';
             await this.db?.run(updateSQL, [captura.id]);
+          } else {
+            this.logService.agregarLog({
+              date: new Date().toISOString(),
+              message: 'Error al subir captura (respuesta no exitosa)',
+              detail: response.message ?? '',
+            });
           }
-        } catch (httpError) {
-          console.error('Error al enviar captura:', httpError);
-          // puedes optar por continuar con las demás o lanzar error según la lógica deseada
+        } catch (httpError: any) {
+          await FirebaseCrashlytics.recordException({
+            message: 'Error actualizando captura: ' + httpError,
+          });
+          // No detenemos el bucle, solo registramos
+          this.logService.agregarLog({
+            date: new Date().toISOString(),
+            message: 'Error enviando captura (offline)',
+            detail: httpError?.message || '',
+          });
         }
       }
-      return { status: 'success', message: 'Capturas subidas correctamente' };
-    } catch (dbError) {
-      console.error('Error al leer de la base de datos:', dbError);
+
+      return { status: 'success', message: 'Proceso de subida finalizado' };
+    } catch (dbError: any) {
+      // Errores de SQLite sí detienen el proceso
+      await FirebaseCrashlytics.recordException({
+        message: 'Error al leer capturas para subir: ' + dbError,
+      });
+
+      this.logService.agregarLog({
+        date: new Date().toISOString(),
+        message: dbError.stack || 'Error desconocido leyendo capturas',
+        detail: dbError.message || '',
+      });
+
       throw dbError;
     }
   }
   async reenviar(id: any): Promise<any> {
     const url = environment.APIUrl + 'trampeo/captura/simmoscas';
+
     try {
+      // 1️⃣ Obtener captura localmente (si falla aquí, detener)
       const sql = 'SELECT * FROM simmoscas WHERE id = ?';
       const res = await this.db?.query(sql, [id]);
 
@@ -305,19 +396,42 @@ export class SimmoscasService {
         tipo: 'Reenviando Datos',
       };
 
-      const response: any = await lastValueFrom(this.http.post(url, params));
+      // 2️⃣ Intentar enviar al servidor (pero no detener si falla)
+      try {
+        const response: any = await lastValueFrom(this.http.post(url, params));
 
-      if (response.status === 'success' || response.status === 'warning') {
-        const updateStatusSql = 'UPDATE simmoscas SET status = 1 WHERE id = ?';
-        await this.db?.run(updateStatusSql, [captura.id]);
+        if (response.status === 'success' || response.status === 'warning') {
+          const updateStatusSql = 'UPDATE simmoscas SET status = 1 WHERE id = ?';
+          await this.db?.run(updateStatusSql, [captura.id]);
+        }
+
+        return response;
+      } catch (httpError: any) {
+        // Sin internet u otro error HTTP
+        this.logService.agregarLog({
+          date: new Date().toISOString(),
+          message: 'Error reenviando captura (offline)',
+          detail: httpError?.message || '',
+        });
+
+        return {
+          status: 'warning',
+          message: 'Captura pendiente de reenvío (sin conexión)',
+        };
       }
+    } catch (dbError: any) {
+      // Errores críticos de base de datos → sí se detiene
+      await FirebaseCrashlytics.recordException({
+        message: 'Error reenviando captura: ' + dbError,
+      });
 
-      return response;
-    } catch (error) {
-      console.error('Error reenviando captura:', error);
-      throw error;
+      this.logService.agregarLog({
+        date: new Date().toISOString(),
+        message: dbError.stack || 'Error desconocido reenviando captura',
+        detail: dbError.message || '',
+      });
+
+      throw dbError;
     }
   }
-
-
 }

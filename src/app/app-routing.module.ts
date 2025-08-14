@@ -47,6 +47,14 @@ const routes: Routes = [
     path: 'ubicaciones/:id/:name',
     loadChildren: () => import('./pages/ubicaciones/ubicaciones.module').then( m => m.UbicacionesPageModule)
   },
+  {
+    path: 'error-logs',
+    loadChildren: () => import('./pages/error-logs/error-logs.module').then( m => m.ErrorLogsPageModule)
+  },
+  {
+    path: 'error-logs-detail/:id',
+    loadChildren: () => import('./pages/error-logs-detail/error-logs-detail.module').then( m => m.ErrorLogsDetailPageModule)
+  },
 ];
 
 @NgModule({

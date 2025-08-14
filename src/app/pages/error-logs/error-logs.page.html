@@ -1,0 +1,41 @@
+<ion-header>
+  <ion-toolbar color="danger">
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Logs de Errores</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="limpiarLogs()">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-list *ngIf="logs.length > 0; else noLogs">
+    <ion-item *ngFor="let log of logs" [routerLink]="['/error-logs-detail', log.id]">
+      <ion-label>
+        <h2>{{ log.message }}</h2>
+        <p>{{ log.date | date:'short' }}</p>
+        <small>{{ log.detail }}</small>
+      </ion-label>
+      <ion-button fill="clear" color="medium" slot="end" (click)="borrarLog(log.id!)">
+        <ion-icon name="close-circle-outline"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  <ng-template #noLogs>
+    <ion-text color="medium">
+      <p class="ion-text-center">No hay errores registrados</p>
+    </ion-text>
+  </ng-template>
+
+  <!-- Botón solo para pruebas -->
+  <!--<ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button color="danger" (click)="agregarErrorDemo()">
+      <ion-icon name="bug-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>-->
+</ion-content>

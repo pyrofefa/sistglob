@@ -70,7 +70,7 @@ export class InfoService {
   }
 
   async deleteProfile() {
-    const tablas = ['perfil', 'simep', 'simgbn', 'simdia', 'simmoscas', 'simpp', 'simto', 'simto_detalle', 'simpicudo', 'simtrampeo', 'sqlite_sequence' ];
+    const tablas = ['perfil', 'simep', 'simgbn', 'simdia', 'simmoscas', 'simpp', 'simto', 'simto_detalle', 'simpicudo', 'simtrampeo', 'sqlite_sequence', 'error_logs' ];
     for (const tabla of tablas) {
       try {
         await this.db.run(`DELETE FROM ${tabla}`);

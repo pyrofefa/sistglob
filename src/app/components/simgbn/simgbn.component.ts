@@ -311,11 +311,11 @@ export class SimgbnComponent implements OnInit {
         ? await this.capturas.update(capturaData)
         : await this.capturas.insert(capturaData);
 
-      let mensaje = '⚠️ Registro guardado localmente';
+      let mensaje = '';
       if (result && typeof result === 'object' && result.status === 'success') {
-        mensaje = '✅ Registro guardado localmente y en línea';
+        mensaje = '✅ '+ result.message;
       } else if (result.status === 'warning') {
-        mensaje = '⚠️ ' + result.message + '. Registro guardado localmente';
+        mensaje = '⚠️ ' + result.message;
       } else if (result.status === 'error') {
         mensaje = '⚠️ Registro guardado localmente';
       }

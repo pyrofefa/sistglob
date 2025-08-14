@@ -26,7 +26,6 @@ export class MigrationSessionService {
   }
 
   async migrateSession(): Promise<void> {
-    await FirebaseCrashlytics.recordException({ message: 'Prueba de error no fatal' });
     if (!this._storage) return;
 
     for (const key of this.KEYS) {

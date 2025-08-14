@@ -23,6 +23,7 @@ import { SimpicudoService } from './simpicudo.service';
 import { MigrationService } from './migration.service';
 import { Capacitor, registerPlugin } from '@capacitor/core';
 import { DatabaseCopierPlugin } from 'src/app/interfaces/database-copier-plugin';
+import { ErrorLogService } from './error-log.service';
 
 // Plugin personalizado para copiar base de datos
 const DatabaseCopier = registerPlugin<DatabaseCopierPlugin>('CopyFileSiafeson');
@@ -52,6 +53,7 @@ export class DatabaseInitService {
     private simto_detalle: SimtoDetalleService,
     private simpicudo: SimpicudoService,
     private migration: MigrationService,
+    private error_logs: ErrorLogService
   ) {}
 
   async initializeDatabase() {
@@ -68,7 +70,7 @@ export class DatabaseInitService {
         this.tabla, this.info, this.trampas, this.fenologias, this.brotes, this.observaciones,
         this.recomendaciones, this.acciones, this.omisiones,
         this.simep, this.simgbn, this.simdia, this.simpp,
-        this.simmoscas, this.simtrampeo, this.simto, this.simto_detalle, this.simpicudo
+        this.simmoscas, this.simtrampeo, this.simto, this.simto_detalle, this.simpicudo, this.error_logs
       ];
       for (const servicio of serviciosConDB) {
         servicio.setDatabase(connection);
@@ -102,6 +104,7 @@ export class DatabaseInitService {
       { nombre: 'simto', fn: () => this.simto.createTable() },
       { nombre: 'simto_detalle', fn: () => this.simto_detalle.createTable() },
       { nombre: 'simpicudo', fn: () => this.simpicudo.createTable() },
+      { nombre: 'error_logs', fn: () => this.error_logs.createTable() }
     ];
 
     for (const tarea of tareas) {

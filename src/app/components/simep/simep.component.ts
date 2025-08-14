@@ -286,11 +286,11 @@ export class SimepComponent implements OnInit, OnDestroy {
         ? await this.capturas.update(capturaData)
         : await this.capturas.insert(capturaData);
 
-      let mensaje = '⚠️ Registro guardado localmente';
+      let mensaje = '';
       if (result && typeof result === 'object' && result.status === 'success') {
-        mensaje = '✅ Registro guardado localmente y en línea';
+        mensaje = '✅ '+ result.message;
       } else if (result.status === 'warning') {
-        mensaje = '⚠️ ' + result.message + '. Registro guardado localmente';
+        mensaje = '⚠️ ' + result.message;
       } else if (result.status === 'error') {
         mensaje = '⚠️ Registro guardado localmente';
       }
@@ -300,7 +300,6 @@ export class SimepComponent implements OnInit, OnDestroy {
         this.back.navigate(['/ubicaciones', this.campana, this.name]);
       }, 500);
     } catch (error) {
-      console.error('Error en guardarRegistro:', error);
       this.extras.presentToast('❌ Error guardando el registro');
     } finally {
       this.extras.loading.dismiss();

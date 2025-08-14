@@ -209,6 +209,7 @@ export function buildUpdatePayloads(data: CapturaSimdia): {
     2, // status local
     ano,
     semana,
+    id_bd_cel,
     version,
     captura.trampa_id,
     siembra_id,

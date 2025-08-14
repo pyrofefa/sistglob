@@ -167,9 +167,9 @@ export class SubirPage implements OnInit {
         this.extras.loading.dismiss();
 
         if (res.status === 'success') {
-          this.extras.presentToast('Registros subidos correctamente');
+          this.extras.presentToast('⚠️ '+res.message);
         } else if (res.status === 'warning') {
-          this.extras.presentToast(res.message);
+          this.extras.presentToast('⚠️ '+res.message);
         } else {
           this.extras.presentToast(
             `Ocurrió un error al subir los registros de ${nombre}`,
