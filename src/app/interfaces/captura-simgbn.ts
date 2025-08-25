@@ -51,7 +51,7 @@ export function buildInsertPayloads(data: CapturaSimgbn): {
     captura: captura.captura,
     fenologia_id: captura.fenologia,
     accion: captura.accion,
-    feromona: captura.feromona,
+    feromona: captura.feromona ? 1 : 0,
     fecha,
     semana,
     ano,

@@ -79,7 +79,6 @@ export class DatabaseInitService {
       await this.crearTablas();
       await this.migration.aplicarMigraciones(connection);
 
-      console.log('✅ Base de datos inicializada correctamente');
     } catch (error) {
       console.error('❌ Error creando la base de datos:', error);
     }
@@ -110,7 +109,6 @@ export class DatabaseInitService {
     for (const tarea of tareas) {
       try {
         await tarea.fn();
-        console.log(`✔️ Tabla "${tarea.nombre}" creada correctamente`);
       } catch (err) {
         console.error(`❌ Error creando tabla "${tarea.nombre}":`, err);
       }
@@ -122,7 +120,6 @@ export class DatabaseInitService {
     const { value } = await Preferences.get({ key: MIGRATION_FLAG_KEY });
 
     if (value === 'true') {
-      console.log('➡️ Base de datos ya fue migrada anteriormente');
       return;
     }
 
@@ -133,11 +130,9 @@ export class DatabaseInitService {
 
     try {
       const dbName = environment.database.name;
-      console.log('🔁 Intentando migrar base de datos antigua Cordova:');
       await DatabaseCopier.importDatabaseFromExternal({ dbName });
 
       await Preferences.set({ key: MIGRATION_FLAG_KEY, value: 'true' });
-      console.log('✅ Migración de base de datos completada');
     } catch (error) {
       console.log('❌ Error durante la migración de base de datos:'+ error);
     }

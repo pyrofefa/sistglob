@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
-import { Geolocation } from '@capacitor/geolocation';
 import { AssetsService } from 'src/app/services/assests.service';
+import { registerPlugin } from '@capacitor/core';
+import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
+const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
 
 @Component({
   selector: 'app-login',
@@ -23,8 +25,7 @@ export class LoginPage implements OnInit {
 
   async ngOnInit() {
     try {
-      const position = await Geolocation.getCurrentPosition();
-      console.log('Posición obtenida:', position.coords);
+      await GPSSiafeson.requestPermissions();
     } catch (error) {
       console.error('Error obteniendo posición:', error);
     }

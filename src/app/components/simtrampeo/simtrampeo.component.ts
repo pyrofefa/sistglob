@@ -14,6 +14,7 @@ import { buildCapturaSimtrampeo } from 'src/app/helpers/buildCapturaSimtrampeo';
 import { AccionesService } from 'src/app/services/acciones.service';
 
 const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import * as Sentry from '@sentry/capacitor';
 
 @Component({
   selector: 'app-simtrampeo',
@@ -32,6 +33,7 @@ export class SimtrampeoComponent implements OnInit {
   ano = moment().format('YYYY');
   semana = moment(this.fecha).week();
   today = Date.now();
+  fechaGPS: any;
 
   /**Posicion */
   latitud?: number;
@@ -81,7 +83,12 @@ export class SimtrampeoComponent implements OnInit {
 
   compareWithAccion: any;
 
+  horaValida: boolean = true;
+  bloquearCaptura: boolean = true;
+  message: string = '';
+
   private listener: { remove: () => Promise<void> } | null = null;
+
   constructor(
     public alertController: AlertController,
     private route: ActivatedRoute,
@@ -153,26 +160,71 @@ export class SimtrampeoComponent implements OnInit {
     this.startGPSWatch();
   }
 
-  private async startGPSWatch() {
-    try {
-      await GPSSiafeson.startWatch();
-      this.listener = await GPSSiafeson.addListener('gpsData', (data) => {
-        this.zone.run(() => {
-          this.latitud = data.latitude;
-          this.longitud = data.longitude;
-          this.presicion = data.accuracy;
-          const gpsMoment = moment(data.timestamp);
-          const sistemaMoment = moment();
-          const diferenciaSegundos = Math.abs(
-            sistemaMoment.diff(gpsMoment, 'seconds'),
-          );
-          this.fechaHoraSatelite = gpsMoment.format('YYYY-MM-DD HH:mm:ss');
-        });
-      });
-    } catch (error) {
-      console.error('Error al iniciar GPS:', error);
-    }
-  }
+   private async startGPSWatch() {
+     try {
+       await GPSSiafeson.startWatch();
+
+       this.listener = await GPSSiafeson.addListener('gpsData', (data) => {
+         this.zone.run(() => {
+           this.latitud = data.latitude;
+           this.longitud = data.longitude;
+           this.presicion = data.accuracy;
+
+           const gpsMoment = moment(data.timestamp);
+           const sistemaMoment = moment();
+
+           const diferenciaSegundos = Math.abs(
+             sistemaMoment.diff(gpsMoment, 'seconds'),
+           );
+
+           const mismoDia = gpsMoment.isSame(sistemaMoment, 'day');
+
+           if (data.isMock) {
+             this.message = '❗ Ubicación simulada detectada.';
+             this.bloquearCaptura = true;
+             Sentry.captureMessage(
+               `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
+               'warning'
+             );
+           } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
+             this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.'
+             this.bloquearCaptura = true;
+             Sentry.captureMessage(
+               `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
+               'warning'
+             );
+           }
+
+           this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
+           this.fecha = sistemaMoment.format('YYYY-MM-DD');
+           this.fechaHoraSatelite = gpsMoment.format('YYYY-MM-DD HH:mm:ss');
+
+           if (!mismoDia) {
+             this.horaValida = false;
+             this.bloquearCaptura = true;
+             this.message = '⚠️ La fecha del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
+             Sentry.captureMessage(
+               `Usuario ${this.user_id} cambió la fecha del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
+               'warning'
+             );
+           } else if (diferenciaSegundos > 5) {
+             this.horaValida = false;
+             this.bloquearCaptura = true;
+             this.message = '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
+             Sentry.captureMessage(
+               `Usuario ${this.user_id} cambió la hora del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
+               'warning'
+             );
+           } else {
+             this.bloquearCaptura = false;
+             this.horaValida = true;
+           }
+         });
+       });
+     } catch (error) {
+       console.error('Error al iniciar GPS:', error);
+     }
+   }
 
   cargar() {
     this.trampa

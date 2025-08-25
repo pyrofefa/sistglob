@@ -25,7 +25,6 @@ export class SimgbnPage implements OnInit {
     this.getSimgbn();
 
     this.simgbn.capturas$.subscribe((texto) => {
-      console.log('SIMGBN: ', texto);
       this.getSimgbn()
     });
   }

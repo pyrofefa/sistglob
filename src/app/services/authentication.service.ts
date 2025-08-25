@@ -6,6 +6,7 @@ import { Preferences } from '@capacitor/preferences';
 import { InfoService } from './info.service';
 import { TablasService } from './tablas.service';
 import { environment } from '../../environments/environment';
+import { Storage } from '@ionic/storage-angular';
 
 @Injectable({
   providedIn: 'root',
@@ -19,14 +20,14 @@ export class AuthenticationService {
     public info: InfoService,
     public tablas: TablasService,
   ) {
-    this.plt.ready().then(() => {
+    this.plt.ready().then(async () => {
+      await this.migrateOldStorageIfNeeded();
       this.checkToken();
     });
   }
 
   async checkToken() {
     const res = await Preferences.get({ key: environment.TOKEN_KEY });
-    console.log(res);
     if (res.value) {
       this.authenticationState.next(true);
     }
@@ -93,7 +94,11 @@ export class AuthenticationService {
           }
         },
         (error) => {
-          resolve({ success: false, msj: 'Ocurrió un error al iniciar sesión, por favor intente más tarde.', error });
+          resolve({
+            success: false,
+            msj: 'Ocurrió un error al iniciar sesión, por favor intente más tarde.',
+            error,
+          });
         },
       );
     });
@@ -132,6 +137,37 @@ export class AuthenticationService {
       return data;
     } catch (error) {
       //console.error('Error al obtener datos del usuario:', error);
+    }
+  }
+
+  //Función para migrar datos antiguos de localStorage a Preferences
+  private async migrateOldStorageIfNeeded() {
+    // Solo migrar si aún no hay nada en Preferences
+    const { value } = await Preferences.get({ key: environment.TOKEN_KEY });
+    if (value) {
+      return;
+    }
+
+    // Crear Storage con soporte a SQLite
+    const storage = new Storage(); // sin argumentos
+    await storage.create();
+
+    const oldToken = await storage.get(environment.TOKEN_KEY);
+    const oldPersonal = await storage.get(environment.PERSONAL_KEY);
+    const oldJunta = await storage.get(environment.JUNTA_KEY);
+    const oldTipo = await storage.get(environment.TIPO_KEY);
+
+    if (oldToken) {
+      await Preferences.set({ key: environment.TOKEN_KEY, value: oldToken });
+      if (oldPersonal)
+        await Preferences.set({
+          key: environment.PERSONAL_KEY,
+          value: oldPersonal,
+        });
+      if (oldJunta)
+        await Preferences.set({ key: environment.JUNTA_KEY, value: oldJunta });
+      if (oldTipo)
+        await Preferences.set({ key: environment.TIPO_KEY, value: oldTipo });
     }
   }
 }

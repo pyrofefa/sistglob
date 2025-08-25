@@ -118,7 +118,6 @@ export class MenuComponent implements OnInit {
       this.zone.run(() => {
         this.version = info.version;
       });
-      console.log(this.version);
     } catch (error) {
       console.error('Error obteniendo versión', error);
       this.version = 'Desconocida';

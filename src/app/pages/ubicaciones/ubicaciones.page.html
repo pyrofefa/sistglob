@@ -38,6 +38,9 @@
       </p>
     </ion-card-content>
   </ion-card>
+  <p class="ion-text-center bloqueo" [hidden]='!bloquearTrampas'>
+    {{ message }}
+  </p>
   <p class="ion-text-center">Trampas registradas<ion-badge color='{{ name }}'>{{ conteo }}</ion-badge></p>
   <ng-template #elseBlock>
     <ion-list>
@@ -69,12 +72,14 @@
     </ion-list>
   </div>
   <ion-fab *ngIf="id == 3" vertical="bottom" horizontal="start" slot="fixed">
-    <ion-fab-button (click)="bajar()" color='{{ name }}' [disabled]='latitud == null && longitud == null && presicion == null'>
+    <ion-fab-button (click)="bajar()" color='{{ name }}'
+      [disabled]='latitud == null && longitud == null && presicion == null'>
       <ion-icon name="cloud-download-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
   <ion-fab vertical="bottom" horizontal="end" slot="fixed">
-    <ion-fab-button (click)="actualizar()" color='{{ name }}' [disabled]='latitud == null && longitud == null && presicion == null'>
+    <ion-fab-button (click)="actualizar()" color='{{ name }}'
+      [disabled]='latitud == null && longitud == null && presicion == null'>
       <ion-icon name="sync"></ion-icon>
     </ion-fab-button>
   </ion-fab>

@@ -24,7 +24,6 @@ export class SimdiaPage implements OnInit {
   ngOnInit() {
     this.getSimdia();
     this.simdia.capturas$.subscribe((texto) => {
-      console.log('SIMDIA: ', texto);
       this.getSimdia();
     });
   }
@@ -32,7 +31,6 @@ export class SimdiaPage implements OnInit {
     this.simdia
       .getCapturas()
       .then((res) => {
-        console.log("res: ", res)
         this.registros = res;
       })
       .catch((error) => {

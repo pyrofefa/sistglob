@@ -110,9 +110,8 @@ export class InfoPage implements OnInit, OnDestroy {
       await DatabaseCopier.copyDatabaseToExternal({
         dbName: 'trampeoSQLite.db',
       });
-      console.log('Base de datos copiada exitosamente');
     } catch (error) {
-      console.error('Error copiando base de datos:', error);
+      console.error('Error copiando base de datos (trampeoSQLite.db):', error);
     }
   }
    private async copyDatabaseOldToExternalStorage(): Promise<void> {
@@ -120,9 +119,8 @@ export class InfoPage implements OnInit, OnDestroy {
       await DatabaseCopier.copyDatabaseToExternal({
         dbName: 'trampeo.db',
       });
-      console.log('Base de datos copiada exitosamente');
     } catch (error) {
-      console.error('Error copiando base de datos:', error);
+      console.error('Error copiando base de datos (trampeo.db): ', error);
     }
   }
 

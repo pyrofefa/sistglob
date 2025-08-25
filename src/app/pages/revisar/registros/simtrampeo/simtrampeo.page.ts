@@ -23,7 +23,6 @@ registros: any = [];
   ngOnInit() {
     this.getSimtrampeo();
     this.simtrampeo.capturas$.subscribe((texto) => {
-      console.log('SIMTRAMPEO: ', texto);
       this.getSimtrampeo();
     });
   }

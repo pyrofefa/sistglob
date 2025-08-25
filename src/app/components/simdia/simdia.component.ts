@@ -16,6 +16,7 @@ import { ObservacionesService } from 'src/app/services/observaciones.service';
 import { buildCapturaSimdia } from 'src/app/helpers/buildCapturaSimdia';
 
 const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import * as Sentry from '@sentry/capacitor';
 
 @Component({
   selector: 'app-simdia',
@@ -93,6 +94,7 @@ export class SimdiaComponent implements OnInit {
 
   horaValida: boolean = true;
   bloquearCaptura: boolean = true;
+  message: string = '';
 
   private listener: { remove: () => Promise<void> } | null = null;
 
@@ -194,13 +196,19 @@ export class SimdiaComponent implements OnInit {
           const mismoDia = gpsMoment.isSame(sistemaMoment, 'day');
 
           if (data.isMock) {
-            this.extras.presentToast('❗Ubicación simulada detectada.');
+            this.message = '❗ Ubicación simulada detectada.';
             this.bloquearCaptura = true;
-          } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
-            this.extras.presentToast(
-              '⚠️ Ubicación sospechosa: salto o velocidad irreal.',
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
+              'warning'
             );
+          } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
+            this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.'
             this.bloquearCaptura = true;
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
+              'warning'
+            );
           }
 
           this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
@@ -210,14 +218,18 @@ export class SimdiaComponent implements OnInit {
           if (!mismoDia) {
             this.horaValida = false;
             this.bloquearCaptura = true;
-            this.extras.presentToast(
-              '⚠️ La fecha del GPS no coincide con la del sistema. Verifica la fecha del dispositivo.',
+            this.message = '⚠️ La fecha del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} cambió la fecha del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
+              'warning'
             );
           } else if (diferenciaSegundos > 5) {
             this.horaValida = false;
             this.bloquearCaptura = true;
-            this.extras.presentToast(
-              '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.',
+            this.message = '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} cambió la hora del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
+              'warning'
             );
           } else {
             this.bloquearCaptura = false;
@@ -292,7 +304,6 @@ export class SimdiaComponent implements OnInit {
       .getFenologias(this.campana)
       .then((res) => {
         this.fenologias = res;
-        console.log('FENOLOGIAS', res);
         this.compareWith = this.compareWithFn;
       })
       .catch((error) => {

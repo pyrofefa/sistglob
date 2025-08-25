@@ -25,9 +25,7 @@ export class SimpicudoPage implements OnInit {
 
   ngOnInit() {
     this.getSimep();
-
     this.simpicudo.capturas$.subscribe(texto =>{
-      console.log('SIMPICUDO: ', texto);
       this.getSimep();
     })
   }
@@ -67,7 +65,6 @@ export class SimpicudoPage implements OnInit {
   }
   onSuccess(date: any) {
     let fechaParse = moment(date).format('YYYY-MM-DD');
-    console.log(fechaParse);
     this.simpicudo
       .getBuscar(fechaParse)
       .then((res) => {

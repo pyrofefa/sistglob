@@ -35,7 +35,6 @@ export class AppComponent {
 
       try {
         await this.databaseInit.initializeDatabase();
-        console.log('🚀 Base de datos lista');
       } catch (err) {
         console.error('❌ Error al inicializar la base de datos:', err);
         await FirebaseCrashlytics.recordException({
@@ -95,7 +94,6 @@ export class AppComponent {
 
       //await FirebaseCrashlytics.setUserId({ userId: 'user123' });
       await FirebaseCrashlytics.log({ message: 'Crashlytics enabled' });
-      console.log('Crashlytics inicializado correctamente');
 
       // Enviar una excepción de prueba
       /*await FirebaseCrashlytics.recordException({

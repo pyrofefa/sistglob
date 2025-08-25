@@ -2,17 +2,15 @@ import { Component, OnInit, OnDestroy, NgZone, Input } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TrampasService } from 'src/app/services/trampas.service';
 import { TablasService } from 'src/app/services/tablas.service';
-import { ModalController } from '@ionic/angular';
 import * as moment from 'moment';
 import 'moment/locale/es';
 moment.locale('es');
-
 import { registerPlugin } from '@capacitor/core';
 import { AssetsService } from 'src/app/services/assests.service';
 import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
 import { Preferences } from '@capacitor/preferences';
-
 const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import * as Sentry from '@sentry/capacitor';
 
 @Component({
   selector: 'app-ubicaciones',
@@ -50,6 +48,7 @@ export class UbicacionesPage implements OnInit, OnDestroy {
   user_id: any;
   personal_id: any;
   junta_id: any;
+  message: string = '';
 
   constructor(
     public extras: AssetsService,
@@ -70,10 +69,11 @@ export class UbicacionesPage implements OnInit, OnDestroy {
   private listener: { remove: () => Promise<void> } | null = null;
 
   async ngOnInit() {
+    this.loadUserPreferences();
     this.route.paramMap.subscribe((res) => {
       this.name = res.get('name');
       this.id = res.get('id');
-      this.distancia = 200;
+      this.distancia = 20000000000000000;
     });
 
     this.tabla.nombre$.subscribe((texto) => {
@@ -82,8 +82,6 @@ export class UbicacionesPage implements OnInit, OnDestroy {
 
     try {
       const permissions = await GPSSiafeson.requestPermissions();
-      console.log('Permisos:', permissions);
-
       if (permissions.location === 'granted') {
         await this.startGPSWatch();
       } else {
@@ -119,11 +117,19 @@ export class UbicacionesPage implements OnInit, OnDestroy {
           const mismoDia = gpsMoment.isSame(sistemaMoment, 'day');
 
           if (data.isMock) {
-            this.extras.presentToast('❗Ubicación simulada detectada.');
+            this.message = '❗ Ubicación simulada detectada.';
             this.bloquearTrampas = true;
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
+              'warning'
+            );
           } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
-            this.extras.presentToast('⚠️ Ubicación sospechosa: salto o velocidad irreal.');
+            this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.'
             this.bloquearTrampas = true;
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
+              'warning'
+            );
           }
 
           this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
@@ -132,15 +138,21 @@ export class UbicacionesPage implements OnInit, OnDestroy {
           if (!mismoDia) {
             this.horaValida = false;
             this.bloquearTrampas = true;
-            this.extras.presentToast(
-              '⚠️ La fecha del GPS no coincide con la del sistema. Verifica la fecha del dispositivo.',
+            this.message = '⚠️ La fecha del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} cambió la fecha del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
+              'warning'
             );
+            console.log(`Usuario ${this.user_id} cambió la fecha del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`);
           } else if (diferenciaSegundos > 5) {
             this.horaValida = false;
             this.bloquearTrampas = true;
-            this.extras.presentToast(
-              '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.',
+            this.message = '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} cambió la hora del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
+              'warning'
             );
+            console.log(`Usuario ${this.user_id} cambió la fecha del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`);
           } else {
             this.bloquearTrampas = false;
             this.horaValida = true;
@@ -162,7 +174,6 @@ export class UbicacionesPage implements OnInit, OnDestroy {
         this.listener = null;
       }
       await GPSSiafeson.stopWatch();
-      console.log('Watch detenido correctamente');
     } catch (error) {
       console.error('Error al limpiar:', error);
     }
@@ -203,7 +214,6 @@ export class UbicacionesPage implements OnInit, OnDestroy {
   }
 
   bajar() {
-    this.loadUserPreferences();
     this.trampas = [];
     this.tabla
       .getSimtrampeo(this.personal_id, this.junta_id)

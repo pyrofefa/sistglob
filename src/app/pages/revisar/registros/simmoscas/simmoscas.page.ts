@@ -24,7 +24,6 @@ export class SimmoscasPage implements OnInit {
   ngOnInit() {
     this.getSimmoscas();
     this.simmosca.capturas$.subscribe((texto) => {
-      console.log('SIMMOSCAS: ', texto);
       this.getSimmoscas();
     });
   }
@@ -32,7 +31,6 @@ export class SimmoscasPage implements OnInit {
     this.simmosca
       .getCapturas()
       .then((res) => {
-        console.log('res: ', res);
         this.registros = res;
       })
       .catch((error) => {

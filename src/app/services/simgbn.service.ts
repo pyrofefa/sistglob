@@ -339,7 +339,7 @@ export class SimgbnService {
 
     try {
       // 1️⃣ Obtener captura localmente (si falla aquí, detener)
-      const sql = 'SELECT * FROM simpp WHERE id = ?';
+      const sql = 'SELECT * FROM simgbn WHERE id = ?';
       const res = await this.db?.query(sql, [id]);
 
       if (!res?.values || res.values.length === 0) {

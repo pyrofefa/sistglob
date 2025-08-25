@@ -1,17 +1,25 @@
 import { TestBed } from '@angular/core/testing';
 import { CanActivateFn } from '@angular/router';
 
-import { authGuard } from './auth.guard';
+import { AuthGuard } from './auth.guard';
+import { AuthenticationService } from '../services/authentication.service';
 
-describe('authGuard', () => {
-  const executeGuard: CanActivateFn = (...guardParameters) => 
-      TestBed.runInInjectionContext(() => authGuard(...guardParameters));
+describe('AuthGuard', () => {
+  let guard: AuthGuard;
+  let authService: jasmine.SpyObj<AuthenticationService>;
 
   beforeEach(() => {
-    TestBed.configureTestingModule({});
+    authService = jasmine.createSpyObj('AuthenticationService', ['isAuthenticated']);
+    guard = new AuthGuard(authService);
   });
 
-  it('should be created', () => {
-    expect(executeGuard).toBeTruthy();
+  it('debería permitir el acceso si está autenticado', () => {
+    authService.isAuthenticated.and.returnValue(true);
+    expect(guard.canActivate()).toBeTrue();
+  });
+
+  it('debería bloquear el acceso si NO está autenticado', () => {
+    authService.isAuthenticated.and.returnValue(false);
+    expect(guard.canActivate()).toBeFalse();
   });
 });

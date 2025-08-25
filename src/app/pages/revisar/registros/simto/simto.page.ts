@@ -23,7 +23,6 @@ export class SimtoPage implements OnInit {
   ngOnInit() {
     this.getSimto();
     this.simto.capturas$.subscribe((texto) => {
-      console.log('SIMTO: ', texto);
       this.getSimto();
     });
   }

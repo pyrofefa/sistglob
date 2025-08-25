@@ -26,7 +26,6 @@ export class SimepPage implements OnInit {
     this.simep
       .getCapturas()
       .then((res) => {
-        console.log("SIMEP REGISTROS: ", res)
         this.registros = res;
       })
       .catch((error) => {

@@ -63,7 +63,7 @@ export function buildInsertPayloads(data: CapturaSimpp): {
     fenologia_id: captura.fenologia,
     trampas_instaladas: captura.instalada,
     trampas_revisadas: captura.revisada,
-    cambio_atrayente: captura.atrayente,
+    cambio_atrayente: captura.atrayente ? 1 : 0,
     observacion_id: captura.observacion,
     accion: captura.accion,
     feromona: captura.feromona ? 1 : 0,

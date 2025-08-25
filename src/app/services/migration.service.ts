@@ -11,14 +11,11 @@ export class MigrationService {
     const storedVersion = Number(stored.value || 1);
 
     if (storedVersion < this.SCHEMA_VERSION) {
-      console.log(`🔄 Migrando BD de versión ${storedVersion} a ${this.SCHEMA_VERSION}`);
       if (storedVersion < 2) await this.migracionV2(connection);
       if (storedVersion < 3) await this.migracionV3(connection);
       if (storedVersion < 4) await this.migracionV4(connection);
 
       await Preferences.set({ key: 'schema_version', value: this.SCHEMA_VERSION.toString() });
-    } else {
-      console.log('✅ Base de datos ya actualizada');
     }
   }
 
@@ -70,9 +67,6 @@ export class MigrationService {
       if (!columnas.includes(campo)) {
         const sql = `ALTER TABLE ${tabla} ADD COLUMN ${campo} ${tipo} DEFAULT ${defaultValue};`;
         await connection.execute(sql);
-        console.log(`🆕 Campo "${campo}" agregado en "${tabla}"`);
-      } else {
-        console.log(`✔️ Campo "${campo}" ya existe en "${tabla}"`);
       }
     } catch (error) {
       console.error(`❌ Error en alteración de tabla "${tabla}":`, error);

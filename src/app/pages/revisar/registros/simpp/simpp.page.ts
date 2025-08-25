@@ -24,7 +24,6 @@ export class SimppPage implements OnInit {
   ngOnInit() {
     this.getSimpp();
     this.simpp.capturas$.subscribe((texto) => {
-      console.log('SIMPP: ', texto);
       this.getSimpp();
     });
   }
@@ -32,7 +31,6 @@ export class SimppPage implements OnInit {
     this.simpp
       .getCapturas()
       .then((res) => {
-        console.log(res)
         this.registros = res;
       })
       .catch((error) => {
@@ -65,7 +63,6 @@ export class SimppPage implements OnInit {
   }
   onSuccess(date: any) {
     let fechaParse = moment(date).format('YYYY-MM-DD');
-    console.log(fechaParse);
     this.simpp
       .getBuscar(fechaParse)
       .then((res) => {
