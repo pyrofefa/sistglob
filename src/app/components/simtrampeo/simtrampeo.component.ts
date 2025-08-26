@@ -1,10 +1,8 @@
 import { Component, Input, NgZone, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { App } from '@capacitor/app';
-import { registerPlugin } from '@capacitor/core';
 import { Preferences } from '@capacitor/preferences';
 import { AlertController } from '@ionic/angular';
-import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
 import * as moment from 'moment';
 import { CalculateDistancePipe } from 'src/app/pipes/calculate-distance.pipe';
 import { AssetsService } from 'src/app/services/assests.service';
@@ -13,7 +11,7 @@ import { TrampasService } from 'src/app/services/trampas.service';
 import { buildCapturaSimtrampeo } from 'src/app/helpers/buildCapturaSimtrampeo';
 import { AccionesService } from 'src/app/services/acciones.service';
 
-const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import { GPSSiafeson } from 'src/app/plugins/gpssiafeson';
 import * as Sentry from '@sentry/capacitor';
 
 @Component({
@@ -160,71 +158,73 @@ export class SimtrampeoComponent implements OnInit {
     this.startGPSWatch();
   }
 
-   private async startGPSWatch() {
-     try {
-       await GPSSiafeson.startWatch();
+  private async startGPSWatch() {
+    try {
+      await GPSSiafeson.startWatch();
 
-       this.listener = await GPSSiafeson.addListener('gpsData', (data) => {
-         this.zone.run(() => {
-           this.latitud = data.latitude;
-           this.longitud = data.longitude;
-           this.presicion = data.accuracy;
+      this.listener = await GPSSiafeson.addListener('gpsData', (data) => {
+        this.zone.run(() => {
+          this.latitud = data.latitude;
+          this.longitud = data.longitude;
+          this.presicion = data.accuracy;
 
-           const gpsMoment = moment(data.timestamp);
-           const sistemaMoment = moment();
+          const gpsMoment = moment(data.timestamp);
+          const sistemaMoment = moment();
 
-           const diferenciaSegundos = Math.abs(
-             sistemaMoment.diff(gpsMoment, 'seconds'),
-           );
+          const diferenciaSegundos = Math.abs(
+            sistemaMoment.diff(gpsMoment, 'seconds'),
+          );
 
-           const mismoDia = gpsMoment.isSame(sistemaMoment, 'day');
+          const mismoDia = gpsMoment.isSame(sistemaMoment, 'day');
 
-           if (data.isMock) {
-             this.message = '❗ Ubicación simulada detectada.';
-             this.bloquearCaptura = true;
-             Sentry.captureMessage(
-               `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
-               'warning'
-             );
-           } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
-             this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.'
-             this.bloquearCaptura = true;
-             Sentry.captureMessage(
-               `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
-               'warning'
-             );
-           }
+          if (data.isMock) {
+            this.message = '❗ Ubicación simulada detectada.';
+            this.bloquearCaptura = true;
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
+              'warning',
+            );
+          } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
+            this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.';
+            this.bloquearCaptura = true;
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
+              'warning',
+            );
+          }
 
-           this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
-           this.fecha = sistemaMoment.format('YYYY-MM-DD');
-           this.fechaHoraSatelite = gpsMoment.format('YYYY-MM-DD HH:mm:ss');
+          this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
+          this.fecha = sistemaMoment.format('YYYY-MM-DD');
+          this.fechaHoraSatelite = gpsMoment.format('YYYY-MM-DD HH:mm:ss');
 
-           if (!mismoDia) {
-             this.horaValida = false;
-             this.bloquearCaptura = true;
-             this.message = '⚠️ La fecha del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
-             Sentry.captureMessage(
-               `Usuario ${this.user_id} cambió la fecha del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
-               'warning'
-             );
-           } else if (diferenciaSegundos > 5) {
-             this.horaValida = false;
-             this.bloquearCaptura = true;
-             this.message = '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
-             Sentry.captureMessage(
-               `Usuario ${this.user_id} cambió la hora del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
-               'warning'
-             );
-           } else {
-             this.bloquearCaptura = false;
-             this.horaValida = true;
-           }
-         });
-       });
-     } catch (error) {
-       console.error('Error al iniciar GPS:', error);
-     }
-   }
+          if (!mismoDia) {
+            this.horaValida = false;
+            this.bloquearCaptura = true;
+            this.message =
+              '⚠️ La fecha del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.';
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} cambió la fecha del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
+              'warning',
+            );
+          } else if (diferenciaSegundos > 5) {
+            this.horaValida = false;
+            this.bloquearCaptura = true;
+            this.message =
+              '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.';
+            Sentry.captureMessage(
+              `Usuario ${this.user_id} cambió la hora del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
+              'warning',
+            );
+          } else {
+            this.bloquearCaptura = false;
+            this.horaValida = true;
+          }
+        });
+      });
+    } catch (error) {
+      console.error('Error al iniciar GPS:', error);
+    }
+  }
 
   cargar() {
     this.trampa
@@ -240,7 +240,7 @@ export class SimtrampeoComponent implements OnInit {
           this.capturas
             .capturaId(this.id)
             .then((res) => {
-              if (res.length > 0 && res[0].id != null) {
+            if (Array.isArray(res) && res.length > 0 && res[0] && res[0].id != null) {
                 for (let result of res) {
                   this.captura.id = result.id;
                   this.status = result.status;
@@ -259,13 +259,14 @@ export class SimtrampeoComponent implements OnInit {
                   .then((res) => {
                     if (res != null && res.length > 0) {
                       for (let result of res) {
-                        if(result.status == 5){
-                          this.status = 4
+                        if (result.status == 5) {
+                          this.status = 4;
                         } else {
                           this.status = result.status;
                         }
                         this.captura.id = result.id;
-                        this.captura.fecha_instalacion = result.fecha_instalacion;
+                        this.captura.fecha_instalacion =
+                          result.fecha_instalacion;
                         this.captura.captura = result.captura;
                       }
                     } else {
@@ -328,16 +329,16 @@ export class SimtrampeoComponent implements OnInit {
     if (this.presicion == null || this.presicion > 16) {
       setTimeout(() => {
         this.extras.loading.dismiss();
-        this.extras.presentToast('La precisión debe de ser menor a 16 para poder guardar el registro');
+        this.extras.presentToast(
+          'La precisión debe de ser menor a 16 para poder guardar el registro',
+        );
       }, 1500);
-    }
-    else if (this.latitud == null || this.longitud == null) {
+    } else if (this.latitud == null || this.longitud == null) {
       setTimeout(() => {
         this.extras.loading.dismiss();
         this.extras.presentToast('No se encontró una posición válida');
       }, 1500);
-    }
-    else {
+    } else {
       // 📌 Lógica principal
       if (instalacion === 1) {
         await this.handleInstalacion();

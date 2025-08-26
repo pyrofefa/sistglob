@@ -9,7 +9,6 @@ import {
   CapturaSimpicudo,
 } from '../interfaces/captura-simpicudo';
 import { ApiResponse } from '../interfaces/api-response';
-import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
 import { ErrorLogService } from './error-log.service';
 
 @Injectable({
@@ -162,9 +161,7 @@ export class SimpicudoService {
       }
     } catch (dbError: any) {
       // Errores críticos de base de datos
-      await FirebaseCrashlytics.recordException({
-        message: 'Error insertando captura: ' + dbError,
-      });
+      console.error('❌ Error insertando captura simpicudo:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),
@@ -242,9 +239,7 @@ export class SimpicudoService {
       }
     } catch (dbError: any) {
       // Errores críticos de base de datos → sí se reportan
-      await FirebaseCrashlytics.recordException({
-        message: 'Error actualizando captura: ' + dbError,
-      });
+      console.error('❌ Error actualizando captura simpicudo:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),
@@ -327,9 +322,7 @@ export class SimpicudoService {
       return { status: 'success', message: 'Proceso de subida finalizado' };
     } catch (dbError: any) {
       // Errores de SQLite sí detienen el proceso
-      await FirebaseCrashlytics.recordException({
-        message: 'Error al leer capturas para subir: ' + dbError,
-      });
+      console.error('❌ Error leyendo capturas simpicudo:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),
@@ -406,9 +399,7 @@ export class SimpicudoService {
       }
     } catch (dbError: any) {
       // Errores críticos de base de datos → sí se detiene
-      await FirebaseCrashlytics.recordException({
-        message: 'Error reenviando captura: ' + dbError,
-      });
+      console.error('❌ Error reenviando captura simpicudo:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),

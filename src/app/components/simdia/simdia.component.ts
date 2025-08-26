@@ -9,13 +9,11 @@ import { FenologiasService } from 'src/app/services/fenologias.service';
 import { SimdiaService } from 'src/app/services/simdia.service';
 import { TrampasService } from 'src/app/services/trampas.service';
 import { App } from '@capacitor/app';
-import { registerPlugin } from '@capacitor/core';
-import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
 import { Preferences } from '@capacitor/preferences';
 import { ObservacionesService } from 'src/app/services/observaciones.service';
 import { buildCapturaSimdia } from 'src/app/helpers/buildCapturaSimdia';
 
-const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+ import { GPSSiafeson } from 'src/app/plugins/gpssiafeson';
 import * as Sentry from '@sentry/capacitor';
 
 @Component({
@@ -254,7 +252,7 @@ export class SimdiaComponent implements OnInit {
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
-            if (res[0].id != null) {
+            if (Array.isArray(res) && res.length > 0 && res[0] && res[0].id != null) {
               for (let result of res) {
                 this.captura.id = result.id;
                 this.captura.captura = result.captura;

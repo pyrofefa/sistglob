@@ -11,11 +11,9 @@ import { FenologiasService } from 'src/app/services/fenologias.service';
 import { OmisionesService } from 'src/app/services/omisiones.service';
 import { SimmoscasService } from 'src/app/services/simmoscas.service';
 import { TrampasService } from 'src/app/services/trampas.service';
-import { registerPlugin } from '@capacitor/core';
-import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
 import { buildCapturaSimmoscas } from 'src/app/helpers/buildCapturaSimmoscas';
 
-const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import { GPSSiafeson } from 'src/app/plugins/gpssiafeson';
 import * as Sentry from '@sentry/capacitor';
 
 @Component({
@@ -247,7 +245,7 @@ export class SimmoscasComponent implements OnInit {
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
-            if (res[0].id != null) {
+            if (Array.isArray(res) && res.length > 0 && res[0] && res[0].id != null) {
               for (let result of res) {
                 this.captura.id = result.id;
                 this.captura.accion = result.accion;

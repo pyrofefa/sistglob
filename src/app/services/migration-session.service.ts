@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Storage } from '@ionic/storage-angular';
 import { Preferences } from '@capacitor/preferences';
-import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
 
 @Injectable({
   providedIn: 'root'
@@ -39,17 +38,14 @@ export class MigrationSessionService {
             key,
             value: typeof oldValue === 'string' ? oldValue : JSON.stringify(oldValue),
           });
-          await FirebaseCrashlytics.log({ message: `✅ Migrado: ${key}` });
           console.log(`✅ Migrado: ${key}`);
         } else {
-          await FirebaseCrashlytics.log({ message: `ℹ️ Ya existe en Preferences: ${key}` });
           console.log(`ℹ️ Ya existe en Preferences: ${key}`);
         }
 
         // Opcional: eliminar clave vieja
         // await this._storage.remove(key);
       } else {
-        await FirebaseCrashlytics.log({ message: `⚠️ No se encontró en Storage: ${key}` });
         console.log(`⚠️ No se encontró en Storage: ${key}`);
       }
     }

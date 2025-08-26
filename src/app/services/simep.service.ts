@@ -9,8 +9,7 @@ import {
   CapturaSimep,
 } from '../interfaces/captura-simep';
 import { ApiResponse } from '../interfaces/api-response';
-import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
-import { ErrorLogService } from './error-log.service';
+ import { ErrorLogService } from './error-log.service';
 
 @Injectable({
   providedIn: 'root',
@@ -163,9 +162,7 @@ export class SimepService {
       }
     } catch (dbError: any) {
       // Errores críticos de base de datos
-      await FirebaseCrashlytics.recordException({
-        message: 'Error insertando captura: ' + dbError,
-      });
+      console.error('❌ Error insertando captura:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),
@@ -242,9 +239,7 @@ export class SimepService {
       }
     } catch (dbError: any) {
       // Errores críticos de base de datos → sí se reportan
-      await FirebaseCrashlytics.recordException({
-        message: 'Error actualizando captura: ' + dbError,
-      });
+      console.error('❌ Error actualizando captura:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),
@@ -322,10 +317,7 @@ export class SimepService {
       }
       return { status: 'success', message: 'Proceso de subida finalizado' };
     } catch (dbError: any) {
-      // Errores de SQLite sí detienen el proceso
-      await FirebaseCrashlytics.recordException({
-        message: 'Error al leer capturas para subir: ' + dbError,
-      });
+      console.error('❌ Error leyendo capturas para subir:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),
@@ -398,9 +390,7 @@ export class SimepService {
       }
     } catch (dbError: any) {
       // Errores críticos de base de datos → sí se detiene
-      await FirebaseCrashlytics.recordException({
-        message: 'Error reenviando captura: ' + dbError,
-      });
+      console.error('❌ Error reenviando captura:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),

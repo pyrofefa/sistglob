@@ -21,12 +21,9 @@ import { SimtoService } from './simto.service';
 import { SimtoDetalleService } from './simto-detalle.service';
 import { SimpicudoService } from './simpicudo.service';
 import { MigrationService } from './migration.service';
-import { Capacitor, registerPlugin } from '@capacitor/core';
-import { DatabaseCopierPlugin } from 'src/app/interfaces/database-copier-plugin';
+import { Capacitor } from '@capacitor/core';
 import { ErrorLogService } from './error-log.service';
-
-// Plugin personalizado para copiar base de datos
-const DatabaseCopier = registerPlugin<DatabaseCopierPlugin>('CopyFileSiafeson');
+import { DatabaseCopier } from 'src/app/plugins/databasecopy';
 
 const MIGRATION_FLAG_KEY = 'db-migrated-v1';
 

@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthenticationService } from '../../services/authentication.service';
 import { AssetsService } from 'src/app/services/assests.service';
-import { registerPlugin } from '@capacitor/core';
-import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
-const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import { GPSSiafeson } from 'src/app/plugins/gpssiafeson';
 
 @Component({
   selector: 'app-login',

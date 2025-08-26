@@ -4,11 +4,7 @@ import { EmailComposer } from '@awesome-cordova-plugins/email-composer/ngx';
 import { ActionSheetController, AlertController } from '@ionic/angular';
 import { AuthenticationService } from 'src/app/services/authentication.service';
 import { InfoService } from 'src/app/services/info.service';
-import { registerPlugin } from '@capacitor/core';
-import { DatabaseCopierPlugin } from 'src/app/interfaces/database-copier-plugin';
-
-// Plugin personalizado para copiar base de datos
-const DatabaseCopier = registerPlugin<DatabaseCopierPlugin>('CopyFileSiafeson');
+import { DatabaseCopier } from 'src/app/plugins/databasecopy';
 
 @Component({
   selector: 'app-info',

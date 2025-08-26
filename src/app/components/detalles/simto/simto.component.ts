@@ -29,7 +29,6 @@ export class SimtoComponent implements OnInit {
       this.captura
         .getCapturaId(this.devid)
         .then((res) => {
-          console.log(res);
           this.capturas = res;
         })
         .catch((error) => {

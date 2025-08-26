@@ -9,13 +9,11 @@ import { AssetsService } from 'src/app/services/assests.service';
 import { FenologiasService } from 'src/app/services/fenologias.service';
 import { SimtoService } from 'src/app/services/simto.service';
 import { TrampasService } from 'src/app/services/trampas.service';
-import { registerPlugin } from '@capacitor/core';
-import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
 import { buildCapturaSimto } from 'src/app/helpers/buildCapturaSimto';
 import { SimtoDetalleService } from 'src/app/services/simto-detalle.service';
 import { DetallePage } from 'src/app/pages/detalle/detalle.page';
 
-const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import { GPSSiafeson } from 'src/app/plugins/gpssiafeson';
 import * as Sentry from '@sentry/capacitor';
 
 @Component({
@@ -242,8 +240,7 @@ private async startGPSWatch() {
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
-            console.log('capturas: ', res);
-            if (res[0].id != null) {
+            if (Array.isArray(res) && res.length > 0 && res[0] && res[0].id != null) {
               for (let result of res) {
                 this.captura.fenologia = result.fenologia;
                 this.captura.totalTrampas = result.punto;
@@ -464,11 +461,11 @@ private async startGPSWatch() {
       );
       const result = await this.capturas.update(capturaData);
 
-      let mensaje = '⚠️ Registro guardado localmente';
+      let mensaje = '';
       if (result && typeof result === 'object' && result.status === 'success') {
-        mensaje = '✅ Registro guardado localmente y en línea';
+        mensaje = '✅ '+ result.message;
       } else if (result.status === 'warning') {
-        mensaje = '⚠️ ' + result.message + '. Registro guardado localmente';
+        mensaje = '⚠️ ' + result.message;
       } else if (result.status === 'error') {
         mensaje = '⚠️ Registro guardado localmente';
       }

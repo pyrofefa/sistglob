@@ -9,13 +9,10 @@ import { AssetsService } from 'src/app/services/assests.service';
 import { FenologiasService } from 'src/app/services/fenologias.service';
 import { SimpicudoService } from 'src/app/services/simpicudo.service';
 import { TrampasService } from 'src/app/services/trampas.service';
-import { registerPlugin } from '@capacitor/core';
-import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
-
 import { buildCapturaSimpicudo } from '../../helpers/buildCapturaSimpicudo';
 import { CalculateDistancePipe } from 'src/app/pipes/calculate-distance.pipe';
 
-const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import { GPSSiafeson } from 'src/app/plugins/gpssiafeson';
 import * as Sentry from '@sentry/capacitor';
 
 @Component({
@@ -235,8 +232,7 @@ export class SimpicudoComponent implements OnInit {
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
-            console.log('capturas: ', res);
-            if (res[0].id != null) {
+            if (Array.isArray(res) && res.length > 0 && res[0] && res[0].id != null) {
               for (let result of res) {
                 this.captura.id = result.id;
                 this.captura.captura = result.captura;
@@ -370,11 +366,11 @@ export class SimpicudoComponent implements OnInit {
         ? await this.capturas.update(capturaData)
         : await this.capturas.insert(capturaData);
 
-      let mensaje = '⚠️ Registro guardado localmente';
+      let mensaje = '';
       if (result && typeof result === 'object' && result.status === 'success') {
-        mensaje = '✅ Registro guardado localmente y en línea';
+        mensaje = '✅ '+ result.message;
       } else if (result.status === 'warning') {
-        mensaje = '⚠️ ' + result.message + '. Registro guardado localmente';
+        mensaje = '⚠️ ' + result.message;
       } else if (result.status === 'error') {
         mensaje = '⚠️ Registro guardado localmente';
       }

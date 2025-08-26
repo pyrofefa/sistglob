@@ -8,13 +8,11 @@ import { FenologiasService } from 'src/app/services/fenologias.service';
 import { SimgbnService } from 'src/app/services/simgbn.service';
 import { TrampasService } from 'src/app/services/trampas.service';
 import { App } from '@capacitor/app';
-import { registerPlugin } from '@capacitor/core';
-import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
 import { CalculateDistancePipe } from 'src/app/pipes/calculate-distance.pipe';
 import { buildCapturaSimgbn } from 'src/app/helpers/buildCapturaSimgbn';
 import { AccionesService } from 'src/app/services/acciones.service';
 
-const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import { GPSSiafeson } from 'src/app/plugins/gpssiafeson';
 import * as Sentry from '@sentry/capacitor';
 
 @Component({
@@ -231,7 +229,7 @@ export class SimgbnComponent implements OnInit {
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
-            if (res[0].id != null) {
+            if (Array.isArray(res) && res.length > 0 && res[0] && res[0].id != null) {
               for (let result of res) {
                 this.captura.id = result.id;
                 this.captura.captura = result.captura;
@@ -266,7 +264,6 @@ export class SimgbnComponent implements OnInit {
       .getFenologias(this.campana)
       .then((res) => {
         this.fenologias = res;
-        console.log('FENOLOGIAS', res);
         this.compareWith = this.compareWithFn;
       })
       .catch((error) => {

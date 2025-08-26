@@ -5,11 +5,9 @@ import { TablasService } from 'src/app/services/tablas.service';
 import * as moment from 'moment';
 import 'moment/locale/es';
 moment.locale('es');
-import { registerPlugin } from '@capacitor/core';
 import { AssetsService } from 'src/app/services/assests.service';
-import { GPSSiafesonPlugin } from 'src/app/interfaces/gpssiafeson-plugin';
 import { Preferences } from '@capacitor/preferences';
-const GPSSiafeson = registerPlugin<GPSSiafesonPlugin>('GPSSiafeson');
+import { GPSSiafeson } from 'src/app/plugins/gpssiafeson';
 import * as Sentry from '@sentry/capacitor';
 
 @Component({
@@ -73,7 +71,7 @@ export class UbicacionesPage implements OnInit, OnDestroy {
     this.route.paramMap.subscribe((res) => {
       this.name = res.get('name');
       this.id = res.get('id');
-      this.distancia = 20000000000000000;
+      this.distancia = 200;
     });
 
     this.tabla.nombre$.subscribe((texto) => {

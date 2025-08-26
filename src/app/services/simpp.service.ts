@@ -10,7 +10,6 @@ import {
   buildUpdatePayloads,
 } from '../interfaces/captura-simpp';
 import { ErrorLogService } from './error-log.service';
-import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
 
 @Injectable({
   providedIn: 'root',
@@ -167,9 +166,7 @@ export class SimppService {
       }
     } catch (dbError: any) {
       // Errores críticos de base de datos
-      await FirebaseCrashlytics.recordException({
-        message: 'Error insertando captura: ' + dbError,
-      });
+      console.error('❌ Error insertando captura simpp:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),
@@ -250,9 +247,7 @@ export class SimppService {
       }
     } catch (dbError: any) {
       // Errores críticos de base de datos → sí se reportan
-      await FirebaseCrashlytics.recordException({
-        message: 'Error actualizando captura: ' + dbError,
-      });
+      console.error('❌ Error actualizando captura simpp:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),
@@ -337,9 +332,7 @@ export class SimppService {
       return { status: 'success', message: 'Proceso de subida finalizado' };
     } catch (dbError: any) {
       // Errores de SQLite sí detienen el proceso
-      await FirebaseCrashlytics.recordException({
-        message: 'Error al leer capturas para subir: ' + dbError,
-      });
+      console.error('❌ Error leyendo capturas simpp:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),
@@ -417,9 +410,7 @@ export class SimppService {
       }
     } catch (dbError: any) {
       // Errores críticos de base de datos → sí se detiene
-      await FirebaseCrashlytics.recordException({
-        message: 'Error reenviando captura: ' + dbError,
-      });
+      console.error('❌ Error reenviando captura simpp:', dbError);
 
       this.logService.agregarLog({
         date: new Date().toISOString(),

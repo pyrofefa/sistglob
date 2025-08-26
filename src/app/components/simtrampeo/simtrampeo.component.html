@@ -54,9 +54,6 @@
     </ion-col>
   </ion-row>
 </ion-grid>
-<p class="ion-text-center error" [hidden]='!bloquearCaptura'>
-  {{ message }}
-</p>
 <ion-card class="welcome-card ion-text-center">
   <ion-card-content>
     <ion-row>
@@ -88,6 +85,7 @@
     <!-- Mostrar mensaje si status es 4, 2 o 1 -->
     <div *ngIf="status == 4 || status == 2 || status == 1 || status == 5">
       <p class="ion-text-center">Después de la instalación tendrás 10 días para poder visualizar la trampa</p>
+      <p class="ion-text-center error" [hidden]='!bloquearCaptura'>{{ message }}</p>
       <ion-button color="{{ name }}" [hidden]="status == 3"
         [disabled]="latitud == null || longitud == null || presicion == null || bloquearCaptura" expand="block" type="submit">
         Guardar instalación
@@ -117,6 +115,7 @@
       <p class="ion-text-center error" *ngIf="captura.captura == null">
         --- Tienes que seleccionar {{ titulo }} ---
       </p>
+      <p class="ion-text-center error" [hidden]='!bloquearCaptura'>{{ message }}</p>
 
       <ion-button color="{{ name }}" expand="block"
         [disabled]="formulario.invalid || bloquearCaptura || latitud == null || longitud == null || presicion == null" type="submit">
@@ -152,6 +151,7 @@
     <p class="ion-text-center error" *ngIf="captura.captura == null">
       --- Tienes que seleccionar {{ titulo }} ---
     </p>
+    <p class="ion-text-center error" [hidden]='!bloquearCaptura'>{{ message }}</p>
 
     <ion-button color="{{ name }}" expand="block"
       [disabled]="formulario.invalid || bloquearCaptura || status == 1 || latitud == null || longitud == null || presicion == null"

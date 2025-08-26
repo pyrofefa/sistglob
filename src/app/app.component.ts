@@ -5,7 +5,6 @@ import { AuthenticationService } from './services/authentication.service';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { DatabaseInitService } from './services/database-init-service.service';
 import { MigrationSessionService } from './services/migration-session.service';
-import { FirebaseCrashlytics } from '@capacitor-firebase/crashlytics';
 import { ErrorLogService } from './services/error-log.service';
 
 @Component({
@@ -31,15 +30,10 @@ export class AppComponent {
     try {
       this.migrationSession.migrateSession();
       await this.platform.ready();
-      await this.initCrashlytics();
-
       try {
         await this.databaseInit.initializeDatabase();
       } catch (err) {
         console.error('❌ Error al inicializar la base de datos:', err);
-        await FirebaseCrashlytics.recordException({
-          message: 'Error en inicialización de DB: ' + err,
-        });
       }
 
       // Configurar StatusBar y SplashScreen modernos
@@ -82,25 +76,6 @@ export class AppComponent {
       });
     } catch (err) {
       console.error('Error al inicializar la app:', err);
-      await FirebaseCrashlytics.recordException({
-        message: 'Error al inicializar la app: ' + err,
-      });
-    }
-  }
-  private async initCrashlytics() {
-    try {
-      // Habilitar Crashlytics
-      await FirebaseCrashlytics.setEnabled({ enabled: true });
-
-      //await FirebaseCrashlytics.setUserId({ userId: 'user123' });
-      await FirebaseCrashlytics.log({ message: 'Crashlytics enabled' });
-
-      // Enviar una excepción de prueba
-      /*await FirebaseCrashlytics.recordException({
-        message: 'Test initialization exception',
-      });*/
-    } catch (err) {
-      console.error('Error inicializando Crashlytics:', err);
     }
   }
 }

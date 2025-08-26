@@ -9,6 +9,15 @@ import * as Sentry from '@sentry/capacitor';
 =========================================================== */
 Sentry.init({
   dsn: 'https://865dcf0045207e6bc7587019a1995ccc@o4508484448092160.ingest.us.sentry.io/4509878350053376',
+  beforeSend(event, hint) {
+    if (
+      event.message &&
+      event.message.includes("Ionic Native: deviceready event fired")
+    ) {
+      return null; // Omitir este evento
+    }
+    return event;
+  },
 });
 
 /* ===========================================================

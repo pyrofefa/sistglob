@@ -53,9 +53,6 @@
     </ion-col>
   </ion-row>
 </ion-grid>
-<p class="ion-text-center error" [hidden]='!bloquearCaptura'>
-  {{ message }}
-</p>
 <ion-card class="welcome-card ion-text-center">
   <ion-card-content>
     <ion-row>
@@ -123,6 +120,7 @@
   <p class="ion-text-center error" *ngIf='captura.fenologia == null'>--- Tienes que seleccionar fenología ---</p>
   <p class="ion-text-center enviado" *ngIf='status == 1'>--- Ya has enviado este registro ---</p>
   <p class="ion-text-center pendiente" *ngIf='status == 2'>--- Tienes pendiente de enviar este registro ---</p>
+  <p class="ion-text-center error" [hidden]='!bloquearCaptura'>{{ message }}</p>
   <ion-button color="{{ name }}" expand="block"
     [disabled]='formulario.invalid || bloquearCaptura || status == 1 || latitud == null || longitud == null || presicion == null'
     type="submit">Guardar</ion-button>
