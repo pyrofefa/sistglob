@@ -19,6 +19,7 @@ dependencies {
     implementation project(':capacitor-keyboard')
     implementation project(':capacitor-preferences')
     implementation project(':capacitor-status-bar')
+    implementation project(':capawesome-capacitor-app-update')
     implementation project(':sentry-capacitor')
     implementation project(':gps-siafeson-plugin')
     implementation project(':siafeson-copy-file')

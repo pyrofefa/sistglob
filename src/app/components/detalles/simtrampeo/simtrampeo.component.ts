@@ -101,15 +101,11 @@ export class SimtrampeoComponent implements OnInit {
           icon: 'close',
           role: 'cancel',
           handler: () => {
-            console.log('Cancel clicked');
           },
         },
       ],
     });
     await actionSheet.present();
-
-    const { role } = await actionSheet.onDidDismiss();
-    console.log('onDidDismiss resolved with role', role);
   }
 
   async presentAlert(id: any) {

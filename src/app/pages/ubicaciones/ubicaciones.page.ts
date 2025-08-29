@@ -115,12 +115,14 @@ export class UbicacionesPage implements OnInit, OnDestroy {
           const mismoDia = gpsMoment.isSame(sistemaMoment, 'day');
 
           if (data.isMock) {
+            console.log('Mock location detected');
             this.message = '❗ Ubicación simulada detectada.';
             this.bloquearTrampas = true;
             Sentry.captureMessage(
               `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
               'warning'
             );
+            return
           } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
             this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.'
             this.bloquearTrampas = true;
@@ -128,6 +130,7 @@ export class UbicacionesPage implements OnInit, OnDestroy {
               `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
               'warning'
             );
+            return
           }
 
           this.fechaGPS = gpsMoment.format('YYYY-MM-DD');

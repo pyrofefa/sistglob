@@ -200,6 +200,7 @@ export class SimdiaComponent implements OnInit {
               `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
               'warning'
             );
+            return
           } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
             this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.'
             this.bloquearCaptura = true;
@@ -207,6 +208,7 @@ export class SimdiaComponent implements OnInit {
               `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
               'warning'
             );
+            return
           }
 
           this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
@@ -418,7 +420,7 @@ export class SimdiaComponent implements OnInit {
       if (result && typeof result === 'object' && result.status === 'success') {
         mensaje = '✅ '+ result.message;
       } else if (result.status === 'warning') {
-        mensaje = '⚠️ ' + result.message;
+        mensaje = '⚠️ ' + result.message + 'Registro guardado localmente';
       } else if (result.status === 'error') {
         mensaje = '⚠️ Registro guardado localmente';
       }

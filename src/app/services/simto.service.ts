@@ -88,7 +88,6 @@ export class SimtoService {
 
   async insert(data: CapturaSimto): Promise<number> {
     const { values } = buildInsertPayloads(data);
-    console.log('valores del insert: ', values);
     const sql = `
       INSERT INTO simto(
         personal_id,

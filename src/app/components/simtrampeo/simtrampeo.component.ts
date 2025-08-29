@@ -184,6 +184,7 @@ export class SimtrampeoComponent implements OnInit {
               `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
               'warning',
             );
+            return
           } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
             this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.';
             this.bloquearCaptura = true;
@@ -191,6 +192,7 @@ export class SimtrampeoComponent implements OnInit {
               `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
               'warning',
             );
+            return
           }
 
           this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
@@ -420,8 +422,8 @@ export class SimtrampeoComponent implements OnInit {
       this.back.navigate(['/home']);
       const mensaje =
         result?.status === 'success' || result?.status === 'warning'
-          ? result.message
-          : 'Registro guardado localmente';
+          ? '✅ '+ result.message
+          : '⚠️ Registro guardado localmente';
       this.extras.presentToast(mensaje);
     }, 1500);
   }

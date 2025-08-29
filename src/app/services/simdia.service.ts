@@ -166,7 +166,7 @@ export class SimdiaService {
 
         return {
           status: 'warning',
-          message: response.message ?? 'Registro guardado localmente',
+          message: response.message ?? '',
         };
       } catch (httpError: any) {
         // Sin internet u otro error HTTP
@@ -178,7 +178,7 @@ export class SimdiaService {
 
         return {
           status: 'warning',
-          message: 'Registro guardado localmente',
+          message: ''
         };
       }
     } catch (dbError: any) {
@@ -257,7 +257,7 @@ export class SimdiaService {
 
         return {
           status: 'warning',
-          message: response.message ?? 'Registro guardado localmenteo',
+          message: response.message ?? '',
         };
       } catch (httpError: any) {
         this.logService.agregarLog({
@@ -268,7 +268,7 @@ export class SimdiaService {
 
         return {
           status: 'warning',
-          message: 'Registro guardado localmente',
+          message: '',
         };
       }
     } catch (dbError: any) {
@@ -449,7 +449,7 @@ export class SimdiaService {
 
         return {
           status: 'warning',
-          message: 'Captura pendiente de reenvío (sin conexión)',
+          message: 'Problemas de conexión con el servidor',
         };
       }
     } catch (dbError: any) {

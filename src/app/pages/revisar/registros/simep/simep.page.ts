@@ -21,6 +21,9 @@ export class SimepPage implements OnInit {
 
   ngOnInit() {
     this.getSimep();
+    this.simep.capturas$.subscribe((texto) => {
+      this.getSimep()
+    });
   }
   getSimep() {
     this.simep

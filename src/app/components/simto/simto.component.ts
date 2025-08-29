@@ -162,7 +162,7 @@ export class SimtoComponent implements OnInit {
     this.startGPSWatch();
   }
 
-private async startGPSWatch() {
+  private async startGPSWatch() {
     try {
       await GPSSiafeson.startWatch();
 
@@ -186,15 +186,17 @@ private async startGPSWatch() {
             this.bloquearCaptura = true;
             Sentry.captureMessage(
               `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
-              'warning'
+              'warning',
             );
+            return;
           } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
-            this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.'
+            this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.';
             this.bloquearCaptura = true;
             Sentry.captureMessage(
               `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
-              'warning'
+              'warning',
             );
+            return;
           }
 
           this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
@@ -204,18 +206,20 @@ private async startGPSWatch() {
           if (!mismoDia) {
             this.horaValida = false;
             this.bloquearCaptura = true;
-            this.message = '⚠️ La fecha del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
+            this.message =
+              '⚠️ La fecha del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.';
             Sentry.captureMessage(
               `Usuario ${this.user_id} cambió la fecha del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
-              'warning'
+              'warning',
             );
           } else if (diferenciaSegundos > 5) {
             this.horaValida = false;
             this.bloquearCaptura = true;
-            this.message = '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.'
+            this.message =
+              '⚠️ La hora del sistema no coincide con la del GPS. Verifica la configuración del dispositivo.';
             Sentry.captureMessage(
               `Usuario ${this.user_id} cambió la hora del dispositivo. Fecha GPS: ${this.fechaGPS}, Fecha sistema: ${this.fecha}`,
-              'warning'
+              'warning',
             );
           } else {
             this.bloquearCaptura = false;
@@ -240,7 +244,12 @@ private async startGPSWatch() {
           );
         } else {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
-            if (Array.isArray(res) && res.length > 0 && res[0] && res[0].id != null) {
+            if (
+              Array.isArray(res) &&
+              res.length > 0 &&
+              res[0] &&
+              res[0].id != null
+            ) {
               for (let result of res) {
                 this.captura.fenologia = result.fenologia;
                 this.captura.totalTrampas = result.punto;
@@ -340,6 +349,15 @@ private async startGPSWatch() {
       this.captura.totalInsectos =
         this.captura.totalInsectos + this.captura.captura;
 
+      const result = this.distance.transform(
+        null,
+        this.latitud ?? 0.0,
+        this.longitud ?? 0.0,
+        this.latitud_campo,
+        this.longitud_campo,
+      );
+      this.distancia_qr = result.distancia;
+
       const capturaData = buildCapturaSimto(
         this.captura,
         this.junta_id,
@@ -424,8 +442,8 @@ private async startGPSWatch() {
         this.extras.loading.dismiss();
         this.extras.presentToast('No se encontró una posición válida');
       }, 1500);
-    }else {
-      this.guardarRegistro()
+    } else {
+      this.guardarRegistro();
     }
   }
 
@@ -463,9 +481,9 @@ private async startGPSWatch() {
 
       let mensaje = '';
       if (result && typeof result === 'object' && result.status === 'success') {
-        mensaje = '✅ '+ result.message;
+        mensaje = '✅ ' + result.message;
       } else if (result.status === 'warning') {
-        mensaje = '⚠️ ' + result.message;
+        mensaje = '⚠️ ' + result.message + ' Registro guardado localmente';
       } else if (result.status === 'error') {
         mensaje = '⚠️ Registro guardado localmente';
       }

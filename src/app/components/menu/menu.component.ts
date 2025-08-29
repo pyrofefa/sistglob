@@ -57,7 +57,7 @@ export class MenuComponent implements OnInit {
       setTimeout(() => {
         this.extras.dismiss();
         this.extras.presentToast(
-          `Error al sincronizar ${err?.message || 'las tablas'}. Verifica tu conexión.`,
+          'Ocurrió un error al actualizar los campos. Por favor revise su conexión a internet.',
         );
       }, 1500);
     }
@@ -94,7 +94,7 @@ export class MenuComponent implements OnInit {
       setTimeout(() => {
         this.extras.dismiss();
         this.extras.presentToast(
-          `Error al actualizar las ubicaciones. ${err?.message || 'Verifica tu conexión.'}`,
+          `Ocurrió un error al actualizar las ubicaciones. Por favor revise su conexión a internet.`,
         );
       }, 1500);
     }

@@ -161,7 +161,7 @@ export class SimppService {
 
         return {
           status: 'warning',
-          message: 'Registro guardado localmente',
+          message: '',
         };
       }
     } catch (dbError: any) {
@@ -181,7 +181,6 @@ export class SimppService {
   async update(data: CapturaSimpp): Promise<ApiResponse> {
     const url = environment.APIUrl + 'trampeo/captura/simpp';
     const { params, values } = buildUpdatePayloads(data);
-
     const sql = `
         UPDATE simpp SET
           personal_id = ?,
@@ -220,7 +219,7 @@ export class SimppService {
         );
 
         if (response.status === 'success' || response.status === 'warning') {
-          const updateStatusSql = 'UPDATE simdia SET status = 1 WHERE id = ?';
+          const updateStatusSql = 'UPDATE simpp SET status = 1 WHERE id = ?';
           await this.db?.run(updateStatusSql, [data.captura.id]);
           return {
             status: response.status,
@@ -242,7 +241,7 @@ export class SimppService {
 
         return {
           status: 'warning',
-          message: 'Registro guardado localmente',
+          message: '',
         };
       }
     } catch (dbError: any) {
@@ -405,7 +404,7 @@ export class SimppService {
 
         return {
           status: 'warning',
-          message: 'Captura pendiente de reenvío (sin conexión)',
+          message: 'Problemas de conexión con el servidor',
         };
       }
     } catch (dbError: any) {

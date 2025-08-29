@@ -6,6 +6,8 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { DatabaseInitService } from './services/database-init-service.service';
 import { MigrationSessionService } from './services/migration-session.service';
 import { ErrorLogService } from './services/error-log.service';
+import { AppUpdate, AppUpdateAvailability } from '@capawesome/capacitor-app-update';
+import { Capacitor } from '@capacitor/core';
 
 @Component({
   selector: 'app-root',
@@ -66,6 +68,10 @@ export class AppComponent {
         },
       );
 
+      // Chequeo de actualización después de inicializar
+      await this.checkForUpdate();
+
+      // Estado de sesión
       this.authenticationService.authenticationState.subscribe((state) => {
         this.session = state;
         if (state) {
@@ -76,6 +82,19 @@ export class AppComponent {
       });
     } catch (err) {
       console.error('Error al inicializar la app:', err);
+    }
+  }
+  private async checkForUpdate() {
+    if (Capacitor.getPlatform() === 'android') {
+      try {
+        const result = await AppUpdate.getAppUpdateInfo();
+        if (result.updateAvailability === AppUpdateAvailability.UPDATE_AVAILABLE &&
+            result.flexibleUpdateAllowed) {
+          await AppUpdate.startFlexibleUpdate();
+        }
+      } catch (err) {
+        console.error('❌ Error al checar actualización:', err);
+      }
     }
   }
 }

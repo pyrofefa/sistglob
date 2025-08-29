@@ -152,7 +152,7 @@ export class SimgbnService {
 
         return {
           status: 'warning',
-          message: 'Registro guardado localmente',
+          message: '',
         };
       }
     } catch (dbError: any) {
@@ -229,7 +229,7 @@ export class SimgbnService {
 
         return {
           status: 'warning',
-          message: 'Registro guardado localmente',
+          message: '',
         };
       }
     } catch (dbError: any) {
@@ -385,7 +385,7 @@ export class SimgbnService {
 
         return {
           status: 'warning',
-          message: 'Captura pendiente de reenvío (sin conexión)',
+          message: 'Problemas de conexión con el servidor',
         };
       }
     } catch (dbError: any) {

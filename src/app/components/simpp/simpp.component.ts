@@ -188,6 +188,7 @@ export class SimppComponent implements OnInit {
               `Usuario ${this.user_id} detectó ubicación simulada (mock location). Lat: ${this.latitud}, Lng: ${this.longitud}`,
               'warning'
             );
+            return
           } else if (data.isJumpDetected || data.isSpeedUnrealistic) {
             this.message = '⚠️ Ubicación sospechosa: salto o velocidad irreal.'
             this.bloquearCaptura = true;
@@ -195,6 +196,7 @@ export class SimppComponent implements OnInit {
               `Usuario ${this.user_id} detectó ubicación sospechosa (salto o velocidad irreal). Lat: ${this.latitud}, Lng: ${this.longitud}`,
               'warning'
             );
+            return
           }
 
           this.fechaGPS = gpsMoment.format('YYYY-MM-DD');
@@ -241,7 +243,6 @@ export class SimppComponent implements OnInit {
           this.capturas.capturaId(this.id, this.fecha).then((res) => {
             if (Array.isArray(res) && res.length > 0 && res[0] && res[0].id != null) {
               for (let result of res) {
-                console.log(result);
                 this.captura.id = result.id;
                 this.captura.captura = result.captura;
                 this.captura.fenologia = result.fenologia_id;
@@ -417,7 +418,7 @@ export class SimppComponent implements OnInit {
       if (result && typeof result === 'object' && result.status === 'success') {
         mensaje = '✅ '+ result.message;
       } else if (result.status === 'warning') {
-        mensaje = '⚠️ ' + result.message;
+        mensaje = '⚠️ ' + result.message + ' Registro guardado localmente';
       } else if (result.status === 'error') {
         mensaje = '⚠️ Registro guardado localmente';
       }
